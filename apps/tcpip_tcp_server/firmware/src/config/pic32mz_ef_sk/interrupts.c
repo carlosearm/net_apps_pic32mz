@@ -50,7 +50,9 @@
 // *****************************************************************************
 
 #include "configuration.h"
+#include "interrupts.h"
 #include "definitions.h"
+
 
 // *****************************************************************************
 // *****************************************************************************
@@ -60,9 +62,9 @@
 
 
 void CORE_TIMER_InterruptHandler( void );
-void UART2_FAULT_InterruptHandler( void );
-void UART2_RX_InterruptHandler( void );
-void UART2_TX_InterruptHandler( void );
+void UART1_FAULT_InterruptHandler( void );
+void UART1_RX_InterruptHandler( void );
+void UART1_TX_InterruptHandler( void );
 void ETHERNET_InterruptHandler( void );
 void NVM_InterruptHandler( void );
 
@@ -74,19 +76,19 @@ void __ISR(_CORE_TIMER_VECTOR, ipl1SRS) CORE_TIMER_Handler (void)
     CORE_TIMER_InterruptHandler();
 }
 
-void __ISR(_UART2_FAULT_VECTOR, ipl1SRS) UART2_FAULT_Handler (void)
+void __ISR(_UART1_FAULT_VECTOR, ipl1SRS) UART1_FAULT_Handler (void)
 {
-    UART2_FAULT_InterruptHandler();
+    UART1_FAULT_InterruptHandler();
 }
 
-void __ISR(_UART2_RX_VECTOR, ipl1SRS) UART2_RX_Handler (void)
+void __ISR(_UART1_RX_VECTOR, ipl1SRS) UART1_RX_Handler (void)
 {
-    UART2_RX_InterruptHandler();
+    UART1_RX_InterruptHandler();
 }
 
-void __ISR(_UART2_TX_VECTOR, ipl1SRS) UART2_TX_Handler (void)
+void __ISR(_UART1_TX_VECTOR, ipl1SRS) UART1_TX_Handler (void)
 {
-    UART2_TX_InterruptHandler();
+    UART1_TX_InterruptHandler();
 }
 
 void __ISR(_ETHERNET_VECTOR, ipl1SRS) ETHERNET_Handler (void)

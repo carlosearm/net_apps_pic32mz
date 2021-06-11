@@ -56,9 +56,9 @@ void EVIC_Initialize( void )
 
     /* Set up priority and subpriority of enabled interrupts */
     IPC0SET = 0x4 | 0x0;  /* CORE_TIMER:  Priority 1 / Subpriority 0 */
-    IPC36SET = 0x400 | 0x0;  /* UART2_FAULT:  Priority 1 / Subpriority 0 */
-    IPC36SET = 0x40000 | 0x0;  /* UART2_RX:  Priority 1 / Subpriority 0 */
-    IPC36SET = 0x4000000 | 0x0;  /* UART2_TX:  Priority 1 / Subpriority 0 */
+    IPC28SET = 0x4 | 0x0;  /* UART1_FAULT:  Priority 1 / Subpriority 0 */
+    IPC28SET = 0x400 | 0x0;  /* UART1_RX:  Priority 1 / Subpriority 0 */
+    IPC28SET = 0x40000 | 0x0;  /* UART1_TX:  Priority 1 / Subpriority 0 */
     IPC38SET = 0x400 | 0x0;  /* ETHERNET:  Priority 1 / Subpriority 0 */
     IPC41SET = 0x4000000 | 0x0;  /* FLASH_CONTROL:  Priority 1 / Subpriority 0 */
 
@@ -112,6 +112,31 @@ void EVIC_SourceStatusClear( INT_SOURCE source )
     volatile uint32_t *IFSxCLR = (volatile uint32_t *)(IFSx + 1);
 
     *IFSxCLR = 1 << (source & 0x1f);
+}
+
+void EVIC_INT_Enable( void )
+{
+    __builtin_enable_interrupts();
+}
+
+bool EVIC_INT_Disable( void )
+{
+    uint32_t processorStatus;
+
+    /* Save the processor status and then Disable the global interrupt */
+    processorStatus = ( uint32_t )__builtin_disable_interrupts();
+
+    /* return the interrupt status */
+    return (bool)(processorStatus & 0x01);
+}
+
+void EVIC_INT_Restore( bool state )
+{
+    if (state)
+    {
+        /* restore the state of CP0 Status register before the disable occurred */
+        __builtin_enable_interrupts();
+    }
 }
 
 

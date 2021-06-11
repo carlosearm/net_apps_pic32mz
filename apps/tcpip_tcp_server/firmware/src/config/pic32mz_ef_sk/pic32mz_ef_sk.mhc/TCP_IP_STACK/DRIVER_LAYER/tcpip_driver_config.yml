@@ -5,12 +5,19 @@ children:
 - type: Symbols
   children:
   - type: Boolean
-    attributes: {id: TCPIP_AUTOCONFIG_ENABLE_LAN8740}
+    attributes: {id: TCPIP_AUTOCONFIG_ENABLE_DP83848}
     children:
     - type: Values
       children:
       - type: User
         attributes: {value: 'true'}
+  - type: Boolean
+    attributes: {id: TCPIP_AUTOCONFIG_ENABLE_LAN8740}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: 'false'}
   - type: Boolean
     attributes: {id: TCPIP_AUTOCONFIG_ENABLE_MIIM_Driver}
     children:
