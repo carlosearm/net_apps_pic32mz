@@ -62,10 +62,17 @@
 
 
 void CORE_TIMER_InterruptHandler( void );
+void TIMER_3_InterruptHandler( void );
+void SPI1_RX_InterruptHandler( void );
+void SPI1_TX_InterruptHandler( void );
 void UART1_FAULT_InterruptHandler( void );
 void UART1_RX_InterruptHandler( void );
 void UART1_TX_InterruptHandler( void );
+void SPI2_RX_InterruptHandler( void );
+void SPI2_TX_InterruptHandler( void );
 void ETHERNET_InterruptHandler( void );
+void SPI3_RX_InterruptHandler( void );
+void SPI3_TX_InterruptHandler( void );
 void NVM_InterruptHandler( void );
 
 
@@ -74,6 +81,21 @@ void NVM_InterruptHandler( void );
 void __ISR(_CORE_TIMER_VECTOR, ipl1SRS) CORE_TIMER_Handler (void)
 {
     CORE_TIMER_InterruptHandler();
+}
+
+void __ISR(_TIMER_3_VECTOR, ipl1SRS) TIMER_3_Handler (void)
+{
+    TIMER_3_InterruptHandler();
+}
+
+void __ISR(_SPI1_RX_VECTOR, ipl1SRS) SPI1_RX_Handler (void)
+{
+    SPI1_RX_InterruptHandler();
+}
+
+void __ISR(_SPI1_TX_VECTOR, ipl1SRS) SPI1_TX_Handler (void)
+{
+    SPI1_TX_InterruptHandler();
 }
 
 void __ISR(_UART1_FAULT_VECTOR, ipl1SRS) UART1_FAULT_Handler (void)
@@ -91,9 +113,29 @@ void __ISR(_UART1_TX_VECTOR, ipl1SRS) UART1_TX_Handler (void)
     UART1_TX_InterruptHandler();
 }
 
+void __ISR(_SPI2_RX_VECTOR, ipl1SRS) SPI2_RX_Handler (void)
+{
+    SPI2_RX_InterruptHandler();
+}
+
+void __ISR(_SPI2_TX_VECTOR, ipl1SRS) SPI2_TX_Handler (void)
+{
+    SPI2_TX_InterruptHandler();
+}
+
 void __ISR(_ETHERNET_VECTOR, ipl1SRS) ETHERNET_Handler (void)
 {
     ETHERNET_InterruptHandler();
+}
+
+void __ISR(_SPI3_RX_VECTOR, ipl1SRS) SPI3_RX_Handler (void)
+{
+    SPI3_RX_InterruptHandler();
+}
+
+void __ISR(_SPI3_TX_VECTOR, ipl1SRS) SPI3_TX_Handler (void)
+{
+    SPI3_TX_InterruptHandler();
 }
 
 void __ISR(_FLASH_CONTROL_VECTOR, ipl1SRS) FLASH_CONTROL_Handler (void)

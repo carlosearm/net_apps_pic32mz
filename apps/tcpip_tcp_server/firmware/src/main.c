@@ -51,6 +51,20 @@
 #include "definitions.h"                // SYS function prototypes
 
 
+    unsigned int data = 0x00F00000;
+    unsigned int write_max_cmd = 0x0000FFFF;
+    unsigned int write_min_cmd = 0x00000000;
+    unsigned int toggle_b_cmd = 0x00C00001;
+    unsigned int global_toggle_cmd = 0x00D00000;
+    unsigned int update_cmd = 0x00100000;
+    unsigned int write_update_all_cmd = 0x80A0FFFF;
+    unsigned int write_update_all_zero_cmd = 0x80A00000;
+    
+    unsigned int read_control = 0x8E000000;
+    unsigned int read_conv_result = 0x00000000;
+
+    //unsigned int buffer;
+
 // *****************************************************************************
 // *****************************************************************************
 // Section: Main Entry Point
@@ -61,11 +75,53 @@ int main ( void )
 {
     /* Initialize all modules */
     SYS_Initialize ( NULL );
+    
+    DAC1_TGP_Clear();
+    DAC1_CLR_Set();
+    DAC1_LDAC_Set();
 
     while ( true )
     {
         /* Maintain state machines of all polled MPLAB Harmony modules. */
         SYS_Tasks ( );
+        
+        SPI3_Write(&read_control, 4);
+            
+        while (true)
+        {
+            ADC_CNV_Set();
+            /*while (ADC_BUSY_Get() == 0)
+            {}*/
+            while (ADC_BUSY_Get() != 0)
+            {}
+            ADC_CNV_Clear();
+
+            if (SPI3_WriteRead(&read_control, 4, &read_conv_result, 4))
+            //if (SPI3_Read(&read_conv_result, 4))
+            {
+//                read_conv_result = read_conv_result >> 14;
+                read_conv_result &= 0x0000FFFF;
+                unsigned output1 = write_update_all_zero_cmd | read_conv_result;
+                SPI1_Write(&output1, 4);
+            }
+            else
+            {
+                unsigned output2 = write_update_all_zero_cmd | 0x000080FF;
+                SPI1_Write(&output2, 4);  
+            }
+        }
+        
+        /*
+        uint16_t output = 0;
+        uint16_t increment = 1;
+        while (true)
+        {
+            output += increment;
+            if (output > 0xFFFF)
+                output = 0;
+            unsigned int current_value = write_update_all_zero_cmd | output;
+            SPI1_Write(&current_value, 4);
+        }*/
     }
 
     /* Execution should not come here during normal operation */

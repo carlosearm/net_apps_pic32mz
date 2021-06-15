@@ -62,6 +62,195 @@
 // *****************************************************************************
 
 
+/*** Macros for HV_POLARITY_NEG_POS pin ***/
+#define HV_POLARITY_NEG_POS_Set()               (LATGSET = (1<<15))
+#define HV_POLARITY_NEG_POS_Clear()             (LATGCLR = (1<<15))
+#define HV_POLARITY_NEG_POS_Toggle()            (LATGINV= (1<<15))
+#define HV_POLARITY_NEG_POS_OutputEnable()      (TRISGCLR = (1<<15))
+#define HV_POLARITY_NEG_POS_InputEnable()       (TRISGSET = (1<<15))
+#define HV_POLARITY_NEG_POS_Get()               ((PORTG >> 15) & 0x1)
+#define HV_POLARITY_NEG_POS_PIN                  GPIO_PIN_RG15
+
+/*** Macros for HVPS_ON_INTERLOCKED pin ***/
+#define HVPS_ON_INTERLOCKED_Set()               (LATASET = (1<<5))
+#define HVPS_ON_INTERLOCKED_Clear()             (LATACLR = (1<<5))
+#define HVPS_ON_INTERLOCKED_Toggle()            (LATAINV= (1<<5))
+#define HVPS_ON_INTERLOCKED_OutputEnable()      (TRISACLR = (1<<5))
+#define HVPS_ON_INTERLOCKED_InputEnable()       (TRISASET = (1<<5))
+#define HVPS_ON_INTERLOCKED_Get()               ((PORTA >> 5) & 0x1)
+#define HVPS_ON_INTERLOCKED_PIN                  GPIO_PIN_RA5
+
+/*** Macros for DAC2_LDAC pin ***/
+#define DAC2_LDAC_Set()               (LATJSET = (1<<13))
+#define DAC2_LDAC_Clear()             (LATJCLR = (1<<13))
+#define DAC2_LDAC_Toggle()            (LATJINV= (1<<13))
+#define DAC2_LDAC_OutputEnable()      (TRISJCLR = (1<<13))
+#define DAC2_LDAC_InputEnable()       (TRISJSET = (1<<13))
+#define DAC2_LDAC_Get()               ((PORTJ >> 13) & 0x1)
+#define DAC2_LDAC_PIN                  GPIO_PIN_RJ13
+
+/*** Macros for DAC2_CLR pin ***/
+#define DAC2_CLR_Set()               (LATJSET = (1<<14))
+#define DAC2_CLR_Clear()             (LATJCLR = (1<<14))
+#define DAC2_CLR_Toggle()            (LATJINV= (1<<14))
+#define DAC2_CLR_OutputEnable()      (TRISJCLR = (1<<14))
+#define DAC2_CLR_InputEnable()       (TRISJSET = (1<<14))
+#define DAC2_CLR_Get()               ((PORTJ >> 14) & 0x1)
+#define DAC2_CLR_PIN                  GPIO_PIN_RJ14
+
+/*** Macros for DAC2_TGP pin ***/
+#define DAC2_TGP_Set()               (LATJSET = (1<<15))
+#define DAC2_TGP_Clear()             (LATJCLR = (1<<15))
+#define DAC2_TGP_Toggle()            (LATJINV= (1<<15))
+#define DAC2_TGP_OutputEnable()      (TRISJCLR = (1<<15))
+#define DAC2_TGP_InputEnable()       (TRISJSET = (1<<15))
+#define DAC2_TGP_Get()               ((PORTJ >> 15) & 0x1)
+#define DAC2_TGP_PIN                  GPIO_PIN_RJ15
+
+/*** Macros for ADC_BUSY pin ***/
+#define ADC_BUSY_Set()               (LATBSET = (1<<11))
+#define ADC_BUSY_Clear()             (LATBCLR = (1<<11))
+#define ADC_BUSY_Toggle()            (LATBINV= (1<<11))
+#define ADC_BUSY_OutputEnable()      (TRISBCLR = (1<<11))
+#define ADC_BUSY_InputEnable()       (TRISBSET = (1<<11))
+#define ADC_BUSY_Get()               ((PORTB >> 11) & 0x1)
+#define ADC_BUSY_PIN                  GPIO_PIN_RB11
+
+/*** Macros for ADC_CNV pin ***/
+#define ADC_CNV_Set()               (LATKSET = (1<<1))
+#define ADC_CNV_Clear()             (LATKCLR = (1<<1))
+#define ADC_CNV_Toggle()            (LATKINV= (1<<1))
+#define ADC_CNV_OutputEnable()      (TRISKCLR = (1<<1))
+#define ADC_CNV_InputEnable()       (TRISKSET = (1<<1))
+#define ADC_CNV_Get()               ((PORTK >> 1) & 0x1)
+#define ADC_CNV_PIN                  GPIO_PIN_RK1
+
+/*** Macros for DAC1_CLR pin ***/
+#define DAC1_CLR_Set()               (LATDSET = (1<<12))
+#define DAC1_CLR_Clear()             (LATDCLR = (1<<12))
+#define DAC1_CLR_Toggle()            (LATDINV= (1<<12))
+#define DAC1_CLR_OutputEnable()      (TRISDCLR = (1<<12))
+#define DAC1_CLR_InputEnable()       (TRISDSET = (1<<12))
+#define DAC1_CLR_Get()               ((PORTD >> 12) & 0x1)
+#define DAC1_CLR_PIN                  GPIO_PIN_RD12
+
+/*** Macros for DAC1_TGP pin ***/
+#define DAC1_TGP_Set()               (LATDSET = (1<<13))
+#define DAC1_TGP_Clear()             (LATDCLR = (1<<13))
+#define DAC1_TGP_Toggle()            (LATDINV= (1<<13))
+#define DAC1_TGP_OutputEnable()      (TRISDCLR = (1<<13))
+#define DAC1_TGP_InputEnable()       (TRISDSET = (1<<13))
+#define DAC1_TGP_Get()               ((PORTD >> 13) & 0x1)
+#define DAC1_TGP_PIN                  GPIO_PIN_RD13
+
+/*** Macros for DAC1_LDAC pin ***/
+#define DAC1_LDAC_Set()               (LATJSET = (1<<0))
+#define DAC1_LDAC_Clear()             (LATJCLR = (1<<0))
+#define DAC1_LDAC_Toggle()            (LATJINV= (1<<0))
+#define DAC1_LDAC_OutputEnable()      (TRISJCLR = (1<<0))
+#define DAC1_LDAC_InputEnable()       (TRISJSET = (1<<0))
+#define DAC1_LDAC_Get()               ((PORTJ >> 0) & 0x1)
+#define DAC1_LDAC_PIN                  GPIO_PIN_RJ0
+
+/*** Macros for COCOS_BAR_COR_ENABLED pin ***/
+#define COCOS_BAR_COR_ENABLED_Set()               (LATFSET = (1<<1))
+#define COCOS_BAR_COR_ENABLED_Clear()             (LATFCLR = (1<<1))
+#define COCOS_BAR_COR_ENABLED_Toggle()            (LATFINV= (1<<1))
+#define COCOS_BAR_COR_ENABLED_OutputEnable()      (TRISFCLR = (1<<1))
+#define COCOS_BAR_COR_ENABLED_InputEnable()       (TRISFSET = (1<<1))
+#define COCOS_BAR_COR_ENABLED_Get()               ((PORTF >> 1) & 0x1)
+#define COCOS_BAR_COR_ENABLED_PIN                  GPIO_PIN_RF1
+
+/*** Macros for MC_BAR_COR_ENABLED pin ***/
+#define MC_BAR_COR_ENABLED_Set()               (LATKSET = (1<<7))
+#define MC_BAR_COR_ENABLED_Clear()             (LATKCLR = (1<<7))
+#define MC_BAR_COR_ENABLED_Toggle()            (LATKINV= (1<<7))
+#define MC_BAR_COR_ENABLED_OutputEnable()      (TRISKCLR = (1<<7))
+#define MC_BAR_COR_ENABLED_InputEnable()       (TRISKSET = (1<<7))
+#define MC_BAR_COR_ENABLED_Get()               ((PORTK >> 7) & 0x1)
+#define MC_BAR_COR_ENABLED_PIN                  GPIO_PIN_RK7
+
+/*** Macros for MACRO_LOW_DOSE_COR_ENABLED pin ***/
+#define MACRO_LOW_DOSE_COR_ENABLED_Set()               (LATGSET = (1<<1))
+#define MACRO_LOW_DOSE_COR_ENABLED_Clear()             (LATGCLR = (1<<1))
+#define MACRO_LOW_DOSE_COR_ENABLED_Toggle()            (LATGINV= (1<<1))
+#define MACRO_LOW_DOSE_COR_ENABLED_OutputEnable()      (TRISGCLR = (1<<1))
+#define MACRO_LOW_DOSE_COR_ENABLED_InputEnable()       (TRISGSET = (1<<1))
+#define MACRO_LOW_DOSE_COR_ENABLED_Get()               ((PORTG >> 1) & 0x1)
+#define MACRO_LOW_DOSE_COR_ENABLED_PIN                  GPIO_PIN_RG1
+
+/*** Macros for MACRO_HIGH_DOSE_COR_ENABLED pin ***/
+#define MACRO_HIGH_DOSE_COR_ENABLED_Set()               (LATGSET = (1<<0))
+#define MACRO_HIGH_DOSE_COR_ENABLED_Clear()             (LATGCLR = (1<<0))
+#define MACRO_HIGH_DOSE_COR_ENABLED_Toggle()            (LATGINV= (1<<0))
+#define MACRO_HIGH_DOSE_COR_ENABLED_OutputEnable()      (TRISGCLR = (1<<0))
+#define MACRO_HIGH_DOSE_COR_ENABLED_InputEnable()       (TRISGSET = (1<<0))
+#define MACRO_HIGH_DOSE_COR_ENABLED_Get()               ((PORTG >> 0) & 0x1)
+#define MACRO_HIGH_DOSE_COR_ENABLED_PIN                  GPIO_PIN_RG0
+
+/*** Macros for MICRO_LOW_DOSE_COR_ENABLED pin ***/
+#define MICRO_LOW_DOSE_COR_ENABLED_Set()               (LATASET = (1<<6))
+#define MICRO_LOW_DOSE_COR_ENABLED_Clear()             (LATACLR = (1<<6))
+#define MICRO_LOW_DOSE_COR_ENABLED_Toggle()            (LATAINV= (1<<6))
+#define MICRO_LOW_DOSE_COR_ENABLED_OutputEnable()      (TRISACLR = (1<<6))
+#define MICRO_LOW_DOSE_COR_ENABLED_InputEnable()       (TRISASET = (1<<6))
+#define MICRO_LOW_DOSE_COR_ENABLED_Get()               ((PORTA >> 6) & 0x1)
+#define MICRO_LOW_DOSE_COR_ENABLED_PIN                  GPIO_PIN_RA6
+
+/*** Macros for MICRO_HIGH_DOSE_COR_ENABLED pin ***/
+#define MICRO_HIGH_DOSE_COR_ENABLED_Set()               (LATASET = (1<<7))
+#define MICRO_HIGH_DOSE_COR_ENABLED_Clear()             (LATACLR = (1<<7))
+#define MICRO_HIGH_DOSE_COR_ENABLED_Toggle()            (LATAINV= (1<<7))
+#define MICRO_HIGH_DOSE_COR_ENABLED_OutputEnable()      (TRISACLR = (1<<7))
+#define MICRO_HIGH_DOSE_COR_ENABLED_InputEnable()       (TRISASET = (1<<7))
+#define MICRO_HIGH_DOSE_COR_ENABLED_Get()               ((PORTA >> 7) & 0x1)
+#define MICRO_HIGH_DOSE_COR_ENABLED_PIN                  GPIO_PIN_RA7
+
+/*** Macros for CORONA_GRN_RESISTOR_BYPASS pin ***/
+#define CORONA_GRN_RESISTOR_BYPASS_Set()               (LATESET = (1<<1))
+#define CORONA_GRN_RESISTOR_BYPASS_Clear()             (LATECLR = (1<<1))
+#define CORONA_GRN_RESISTOR_BYPASS_Toggle()            (LATEINV= (1<<1))
+#define CORONA_GRN_RESISTOR_BYPASS_OutputEnable()      (TRISECLR = (1<<1))
+#define CORONA_GRN_RESISTOR_BYPASS_InputEnable()       (TRISESET = (1<<1))
+#define CORONA_GRN_RESISTOR_BYPASS_Get()               ((PORTE >> 1) & 0x1)
+#define CORONA_GRN_RESISTOR_BYPASS_PIN                  GPIO_PIN_RE1
+
+/*** Macros for BIAS_MICRO_MODE_SELECT pin ***/
+#define BIAS_MICRO_MODE_SELECT_Set()               (LATGSET = (1<<14))
+#define BIAS_MICRO_MODE_SELECT_Clear()             (LATGCLR = (1<<14))
+#define BIAS_MICRO_MODE_SELECT_Toggle()            (LATGINV= (1<<14))
+#define BIAS_MICRO_MODE_SELECT_OutputEnable()      (TRISGCLR = (1<<14))
+#define BIAS_MICRO_MODE_SELECT_InputEnable()       (TRISGSET = (1<<14))
+#define BIAS_MICRO_MODE_SELECT_Get()               ((PORTG >> 14) & 0x1)
+#define BIAS_MICRO_MODE_SELECT_PIN                  GPIO_PIN_RG14
+
+/*** Macros for HIGH_VOLTAGE_ENABLED pin ***/
+#define HIGH_VOLTAGE_ENABLED_Set()               (LATGSET = (1<<12))
+#define HIGH_VOLTAGE_ENABLED_Clear()             (LATGCLR = (1<<12))
+#define HIGH_VOLTAGE_ENABLED_Toggle()            (LATGINV= (1<<12))
+#define HIGH_VOLTAGE_ENABLED_OutputEnable()      (TRISGCLR = (1<<12))
+#define HIGH_VOLTAGE_ENABLED_InputEnable()       (TRISGSET = (1<<12))
+#define HIGH_VOLTAGE_ENABLED_Get()               ((PORTG >> 12) & 0x1)
+#define HIGH_VOLTAGE_ENABLED_PIN                  GPIO_PIN_RG12
+
+/*** Macros for CORONA_BIAS_POLARITY_NEG_POS pin ***/
+#define CORONA_BIAS_POLARITY_NEG_POS_Set()               (LATGSET = (1<<13))
+#define CORONA_BIAS_POLARITY_NEG_POS_Clear()             (LATGCLR = (1<<13))
+#define CORONA_BIAS_POLARITY_NEG_POS_Toggle()            (LATGINV= (1<<13))
+#define CORONA_BIAS_POLARITY_NEG_POS_OutputEnable()      (TRISGCLR = (1<<13))
+#define CORONA_BIAS_POLARITY_NEG_POS_InputEnable()       (TRISGSET = (1<<13))
+#define CORONA_BIAS_POLARITY_NEG_POS_Get()               ((PORTG >> 13) & 0x1)
+#define CORONA_BIAS_POLARITY_NEG_POS_PIN                  GPIO_PIN_RG13
+
+/*** Macros for BIAS_VOLTAGE_ENABLED pin ***/
+#define BIAS_VOLTAGE_ENABLED_Set()               (LATESET = (1<<2))
+#define BIAS_VOLTAGE_ENABLED_Clear()             (LATECLR = (1<<2))
+#define BIAS_VOLTAGE_ENABLED_Toggle()            (LATEINV= (1<<2))
+#define BIAS_VOLTAGE_ENABLED_OutputEnable()      (TRISECLR = (1<<2))
+#define BIAS_VOLTAGE_ENABLED_InputEnable()       (TRISESET = (1<<2))
+#define BIAS_VOLTAGE_ENABLED_Get()               ((PORTE >> 2) & 0x1)
+#define BIAS_VOLTAGE_ENABLED_PIN                  GPIO_PIN_RE2
+
 
 // *****************************************************************************
 /* GPIO Port

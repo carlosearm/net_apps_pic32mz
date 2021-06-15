@@ -48,10 +48,14 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "peripheral/spi/spi_master/plib_spi3_master.h"
 #include "peripheral/nvm/plib_nvm.h"
 #include "system/time/sys_time.h"
 #include "peripheral/coretimer/plib_coretimer.h"
 #include "peripheral/uart/plib_uart1.h"
+#include "peripheral/tmr/plib_tmr2.h"
+#include "peripheral/spi/spi_master/plib_spi2_master.h"
+#include "peripheral/spi/spi_master/plib_spi1_master.h"
 #include "library/tcpip/tcpip.h"
 #include "driver/ethmac/drv_ethmac.h"
 #include "driver/miim/drv_miim.h"

@@ -479,10 +479,19 @@ void SYS_Initialize ( void* data )
 
 	GPIO_Initialize();
 
+	SPI3_Initialize();
+
     NVM_Initialize();
 
     CORETIMER_Initialize();
 	UART1_Initialize();
+
+    TMR2_Initialize();
+
+
+	SPI2_Initialize();
+
+	SPI1_Initialize();
 
 	BSP_Initialize();
 
