@@ -39,6 +39,6 @@
     /* ************************************************************************** */
     void DAC_SetMin();
     void DAC_SetMax();
-    void DAC_Toggle(short  time);
+    void DAC_Toggle(short time);
     void Cycles(short count);
     

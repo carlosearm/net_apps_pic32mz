@@ -62,6 +62,7 @@
 
 
 void CORE_TIMER_InterruptHandler( void );
+void TIMER_3_InterruptHandler( void );
 void UART1_FAULT_InterruptHandler( void );
 void UART1_RX_InterruptHandler( void );
 void UART1_TX_InterruptHandler( void );
@@ -76,6 +77,15 @@ void NVM_InterruptHandler( void );
 void __ISR(_CORE_TIMER_VECTOR, ipl1SRS) CORE_TIMER_Handler (void)
 {
     CORE_TIMER_InterruptHandler();
+}
+
+void __ISR(_TIMER_2_VECTOR, ipl1SRS) TIMER_2_Handler (void)
+{
+}
+
+void __ISR(_TIMER_3_VECTOR, ipl1SRS) TIMER_3_Handler (void)
+{
+    TIMER_3_InterruptHandler();
 }
 
 void __ISR(_UART1_FAULT_VECTOR, ipl1SRS) UART1_FAULT_Handler (void)

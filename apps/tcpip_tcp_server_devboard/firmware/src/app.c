@@ -268,8 +268,10 @@ void APP_Tasks ( void )
                     }
                     else if (i >= '0' && i <= '9')
                     {
-                        Cycles(i-48);
-                        AppBuffer[w2] = i;
+                        i -= 48;
+                        DAC_Toggle(i);
+                        //Cycles(i);
+                        AppBuffer[w2] = i+48;
                     }
                     else if(i == '\x1b')   // escape
                     {

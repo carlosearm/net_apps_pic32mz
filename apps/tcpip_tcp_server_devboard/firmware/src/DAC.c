@@ -49,14 +49,26 @@
 /* ************************************************************************** */
     void DAC_SetMin()
     {
+        SPI2_Write(&write_update_all_zero_cmd, 4);
     }
     
     void DAC_SetMax()
     {
+        SPI2_Write(&write_update_all_cmd, 4);
+    }
+    
+    void TIMER2_InterruptSvcRoutine(uint32_t status, uintptr_t context)
+    {
+        SPI2_Write(&write_update_all_zero_cmd, 4);
+        TMR2_Stop();
     }
     
     void DAC_Toggle(short time)
     {
+        TMR2_PeriodSet(time * 99998U);
+        TMR2_CallbackRegister(TIMER2_InterruptSvcRoutine,NULL);
+        TMR2_Start();
+        SPI2_Write(&write_update_all_cmd, 4);
     }
     
     void Ramp()

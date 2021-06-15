@@ -484,6 +484,8 @@ void SYS_Initialize ( void* data )
     CORETIMER_Initialize();
 	UART1_Initialize();
 
+    TMR2_Initialize();
+
 	SPI2_Initialize();
 
 	BSP_Initialize();
