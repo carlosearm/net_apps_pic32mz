@@ -74,8 +74,8 @@ void GPIO_Initialize ( void )
 
     /* PORTE Initialization */
     LATE = 0x0; /* Initial Latch Value */
-    TRISECLR = 0x6; /* Direction Control */
-    ANSELECLR = 0x100; /* Digital Mode Enable */
+    TRISECLR = 0x46; /* Direction Control */
+    ANSELECLR = 0x140; /* Digital Mode Enable */
 
     /* PORTF Initialization */
     LATF = 0x0; /* Initial Latch Value */
@@ -99,7 +99,7 @@ void GPIO_Initialize ( void )
 
     /* PORTK Initialization */
     LATK = 0x0; /* Initial Latch Value */
-    TRISKCLR = 0x82; /* Direction Control */
+    TRISKCLR = 0x80; /* Direction Control */
 
 
     /* Unlock system for PPS configuration */

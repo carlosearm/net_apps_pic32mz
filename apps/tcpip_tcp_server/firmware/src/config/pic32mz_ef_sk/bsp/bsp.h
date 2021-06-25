@@ -60,7 +60,14 @@
 // Section: BSP Macros
 // *****************************************************************************
 // *****************************************************************************
-
+/*** SWITCH Macros for SWITCH_AL_RB12 ***/
+#define SWITCH_AL_RB12_Get() ((PORTB >> 12) & 0x1)
+#define SWITCH_AL_RB12_STATE_PRESSED 0
+#define SWITCH_AL_RB12_STATE_RELEASED 1
+/*** SWITCH Macros for SWITCH_AL_RB13 ***/
+#define SWITCH_AL_RB13_Get() ((PORTB >> 13) & 0x1)
+#define SWITCH_AL_RB13_STATE_PRESSED 0
+#define SWITCH_AL_RB13_STATE_RELEASED 1
 
 
 

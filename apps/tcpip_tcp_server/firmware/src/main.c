@@ -60,7 +60,7 @@
     unsigned int write_update_all_cmd = 0x80A0FFFF;
     unsigned int write_update_all_zero_cmd = 0x80A00000;
     
-    unsigned int read_control = 0x8E000000;
+    unsigned int read_control = 0x84000000;
     unsigned int read_conv_result = 0x00000000;
 
     //unsigned int buffer;
@@ -80,34 +80,57 @@ int main ( void )
     DAC1_CLR_Set();
     DAC1_LDAC_Set();
 
+
+    ADC_CNV_Clear();
+
+
     while ( true )
     {
         /* Maintain state machines of all polled MPLAB Harmony modules. */
         SYS_Tasks ( );
         
         SPI3_Write(&read_control, 4);
-            
+        short triggered = 0;
         while (true)
         {
-            ADC_CNV_Set();
-            /*while (ADC_BUSY_Get() == 0)
-            {}*/
-            while (ADC_BUSY_Get() != 0)
-            {}
-            ADC_CNV_Clear();
-
-            if (SPI3_WriteRead(&read_control, 4, &read_conv_result, 4))
-            //if (SPI3_Read(&read_conv_result, 4))
+            //ADC_CNV_Clear();
+            if (SWITCH3_Get() != 0)
             {
-//                read_conv_result = read_conv_result >> 14;
-                read_conv_result &= 0x0000FFFF;
-                unsigned output1 = write_update_all_zero_cmd | read_conv_result;
-                SPI1_Write(&output1, 4);
+                ADC_CNV_Clear();
+                triggered = 0;
             }
             else
             {
-                unsigned output2 = write_update_all_zero_cmd | 0x000080FF;
-                SPI1_Write(&output2, 4);  
+                if (triggered == 0)
+                {
+                    triggered = 1;
+                    ADC_CNV_Set();
+                    ADC_CNV_Clear();
+                    while (ADC_BUSY_Get() != 0)
+                    {
+                    }
+                    if (SPI3_WriteRead(&read_control, 4, &read_conv_result, 4))
+                    {
+                        read_conv_result = read_conv_result >> 8;
+                        if ((read_conv_result & 0x00003F) == 0x4)
+                        {
+                            COCOS_BAR_COR_ENABLED_Set();
+                            read_conv_result = read_conv_result >> 8;
+                            read_conv_result &= 0x0000FFFF;
+                            unsigned output1 = write_update_all_zero_cmd | read_conv_result;
+                            SPI1_Write(&output1, 4);
+                        }
+                        else
+                        {
+                            COCOS_BAR_COR_ENABLED_Clear();
+                        }
+                    }
+                    else
+                    {
+                        unsigned output2 = write_update_all_zero_cmd | 0x000080FF;
+                        SPI1_Write(&output2, 4);  
+                    }
+                }
             }
         }
         

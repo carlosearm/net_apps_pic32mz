@@ -160,13 +160,13 @@ files:
   security: NON_SECURE
   type: SOURCE
   userChecksum: 73252A0D2C9A885F59B4725D6ED4C8E1
-- generatedChecksum: DEC480FDCEADBBA9547B533AD747D6DC
+- generatedChecksum: 484AA63E4D9D01FEAFE046BF42CB0501
   logicalPath: config/pic32mz_ef_sk/peripheral/gpio
   name: plib_gpio.c
   physicalPath: peripheral/gpio
   security: NON_SECURE
   type: SOURCE
-  userChecksum: DEC480FDCEADBBA9547B533AD747D6DC
+  userChecksum: 484AA63E4D9D01FEAFE046BF42CB0501
 - generatedChecksum: 451DBD4978CF3ECC195A212174414B4F
   logicalPath: config/pic32mz_ef_sk/peripheral/nvm
   name: plib_nvm.c
@@ -433,20 +433,20 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: D24505F81C0F11274D502E0135E16982
-- generatedChecksum: 1CC4A4F2A70990A31F79E1541BB62BE6
+- generatedChecksum: EE046E6BB7AE85AF4302C52D6EA29E6D
   logicalPath: config/pic32mz_ef_sk/bsp
   name: bsp.h
   physicalPath: bsp
   security: NON_SECURE
   type: HEADER
-  userChecksum: 1CC4A4F2A70990A31F79E1541BB62BE6
-- generatedChecksum: 5071D0B0A97F081E466A0E32B058BD77
+  userChecksum: EE046E6BB7AE85AF4302C52D6EA29E6D
+- generatedChecksum: 5742D096BDF0E9AAE055EDA15937DF39
   logicalPath: config/pic32mz_ef_sk
   name: configuration.h
   physicalPath: ''
   security: NON_SECURE
   type: HEADER
-  userChecksum: 5071D0B0A97F081E466A0E32B058BD77
+  userChecksum: 5742D096BDF0E9AAE055EDA15937DF39
 - generatedChecksum: 858410DFAED3C81F2190A621BCC4D4BC
   logicalPath: config/pic32mz_ef_sk/library/tcpip
   name: ddns.h
@@ -1021,13 +1021,13 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: 3C465EE2268CD765C11300F75C6560CC
-- generatedChecksum: EB8C8EFFA34135C6F5B22BBF9C0973EA
+- generatedChecksum: 893E3D137ED95FF9B32E9287F32C9BED
   logicalPath: config/pic32mz_ef_sk/peripheral/gpio
   name: plib_gpio.h
   physicalPath: peripheral/gpio
   security: NON_SECURE
   type: HEADER
-  userChecksum: EB8C8EFFA34135C6F5B22BBF9C0973EA
+  userChecksum: 893E3D137ED95FF9B32E9287F32C9BED
 - generatedChecksum: 7C954B20EDAB3F13455008470691E59C
   logicalPath: config/pic32mz_ef_sk/peripheral/nvm
   name: plib_nvm.h
