@@ -79,7 +79,7 @@ children:
         - type: Values
           children:
           - type: User
-            attributes: {value: '0'}
+            attributes: {value: '3'}
       - type: Boolean
         attributes: {id: TCPIP_STACK_NETWORK_CONFIG_IDX0}
         children:

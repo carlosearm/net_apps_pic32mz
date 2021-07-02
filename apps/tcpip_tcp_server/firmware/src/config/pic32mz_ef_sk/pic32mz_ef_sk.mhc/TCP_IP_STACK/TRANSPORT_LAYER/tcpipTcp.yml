@@ -20,6 +20,13 @@ children:
         attributes: {id: visible}
         children:
         - {type: Value, value: 'true'}
+  - type: Integer
+    attributes: {id: TCPIP_TCP_HEAP_SIZE}
+    children:
+    - type: Values
+      children:
+      - type: Dynamic
+        attributes: {id: tcpipTcp, value: '11560'}
 - type: Attachments
   children:
   - type: GenericDependency

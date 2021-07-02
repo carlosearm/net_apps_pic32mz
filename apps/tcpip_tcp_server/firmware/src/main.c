@@ -51,19 +51,19 @@
 #include "definitions.h"                // SYS function prototypes
 
 
-    unsigned int data = 0x00F00000;
-    unsigned int write_max_cmd = 0x0000FFFF;
-    unsigned int write_min_cmd = 0x00000000;
-    unsigned int toggle_b_cmd = 0x00C00001;
-    unsigned int global_toggle_cmd = 0x00D00000;
-    unsigned int update_cmd = 0x00100000;
-    unsigned int write_update_all_cmd = 0x80A0FFFF;
-    unsigned int write_update_all_zero_cmd = 0x80A00000;
-    
-    unsigned int read_control = 0x84000000;
-    unsigned int read_conv_result = 0x00000000;
+unsigned int data = 0x00F00000;
+unsigned int write_max_cmd = 0x0000FFFF;
+unsigned int write_min_cmd = 0x00000000;
+unsigned int toggle_b_cmd = 0x00C00001;
+unsigned int global_toggle_cmd = 0x00D00000;
+unsigned int update_cmd = 0x00100000;
+unsigned int write_update_all_cmd = 0x80A0FFFF;
+unsigned int write_update_all_zero_cmd = 0x80A00000;
 
-    //unsigned int buffer;
+unsigned int read_control = 0x84000000;
+unsigned int read_conv_result = 0x00000000;
+
+//unsigned int buffer;
 
 // *****************************************************************************
 // *****************************************************************************
@@ -81,7 +81,7 @@ int main ( void )
     DAC1_LDAC_Set();
 
 
-    ADC_CNV_Clear();
+    //ADC_CNV_Clear();
 
 
     while ( true )
@@ -89,6 +89,7 @@ int main ( void )
         /* Maintain state machines of all polled MPLAB Harmony modules. */
         SYS_Tasks ( );
         
+        /*
         SPI3_Write(&read_control, 4);
         short triggered = 0;
         while (true)
@@ -132,7 +133,7 @@ int main ( void )
                     }
                 }
             }
-        }
+        }*/
         
         /*
         uint16_t output = 0;
