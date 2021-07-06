@@ -23,8 +23,6 @@
 
 #include "adc.h"
 
-ADC_DATA_TYPE initial_control = {.controlbyte = 1};
-
 DWORD read_none = 0;
 DWORD read_cmd = 0x84000000;
 DWORD receive = 0;
@@ -35,7 +33,20 @@ void ADC_Initialize(void)
     ADC_STAT = ADC_WAIT_INIT;
 }
 
-static int DoOneReading();
+void ADC_Scan(void)
+{
+    if (ADC_STAT == ADC_IDLE)
+    {
+        ADC_DATA.controlbyte = 3;
+        ADC_DATA.index = 0;
+        ADC_DATA.channel_0 = 0;
+        ADC_DATA.channel_1 = 0;
+        ADC_STAT = ADC_SCANNING;
+    }
+}
+
+static BYTE GetNextIndex();
+//static int DoOneReading();
 
 void ADC_Tasks()
 {
@@ -46,15 +57,58 @@ void ADC_Tasks()
             SPI3_WriteRead(&read_cmd, 4, &receive, 4);
             ADC_STAT = ADC_IDLE;
             break;
-        case ADC_BUSY:
-            break;
         case ADC_IDLE:
             break;
+        case ADC_SCANNING:
+            if (ADC_DATA.controlbyte & (1 << ADC_DATA.index))
+            {
+               int i;
+               for(i=0; i<ADC_DATA.index; i++)
+               {
+                   COCOS_BAR_COR_ENABLED_Clear();
+                   COCOS_BAR_COR_ENABLED_Set();
+                   COCOS_BAR_COR_ENABLED_Clear();
+               }
+                ADC_CNV_Set();
+                ADC_CNV_Clear();
+                ADC_STAT = ADC_CONVERTING;
+            }
+            else
+                ADC_DATA.index++;
+            break;
+       case ADC_CONVERTING:
+           if (ADC_BUSY_Get() == 0)
+           {
+               BYTE next_index = GetNextIndex();
+               DWORD cmd = (0x80000000)|(next_index << 27);
+               SPI3_WriteRead(&cmd, 4, &receive, 4);
+               if (receive == 0) 
+               {
+                   ADC_STAT = ADC_SCANNING;
+                   break;
+               }
+               if ((receive >> 24) == (receive & 0x000000FF))
+                   ADC_DATA.channels[ADC_DATA.index] = receive >> 14;
+               ADC_STAT = next_index > ADC_DATA.index ? ADC_SCANNING : ADC_IDLE;
+               ADC_DATA.index = next_index;
+           }
+           break;
     }
 }
 
+static BYTE GetNextIndex()
+{
+    if (ADC_DATA.controlbyte == 0) return 0;
+    BYTE index = ADC_DATA.index + 1;
+    while (((1 << index) & ADC_DATA.controlbyte) == 0)
+    {
+        index++;
+        index %= 8;
+    }
+    return index;
+}
 
-static int DoOneReading()
+/*static int DoOneReading()
 {
     ADC_CNV_Set();
     ADC_CNV_Clear();
@@ -63,13 +117,13 @@ static int DoOneReading()
     }
     return SPI3_WriteRead(&read_cmd, 4, &receive, 4);
     //return SPI3_WriteRead(&read_none, 4, &receive, 4);
-}
+}*/
 
 int ADC_ReadMonitorLines(void)
 {
     if (ADC_STAT != ADC_IDLE)
         return 0;
-    ADC_STAT = ADC_BUSY;
+    /*ADC_STAT = ADC_BUSY;
     DoOneReading();
     //if (receive == 0)
       //  DoOneReading();
@@ -79,7 +133,7 @@ int ADC_ReadMonitorLines(void)
         ADC_DATA.channel0 = receive >> 14;
         ADC_STAT = ADC_IDLE;
     }
-    ADC_STAT = ADC_IDLE;
+    ADC_STAT = ADC_IDLE;*/
     return 1;    
 }
 

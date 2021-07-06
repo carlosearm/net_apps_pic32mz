@@ -42,19 +42,20 @@ typedef unsigned int DWORD;
 typedef struct
 {
     BYTE controlbyte;
+    BYTE index;
     union
     {
         uint channels[8];
         struct
         {
-            uint channel0;
-            uint channel1;
-            uint channel2;
-            uint channel3;
-            uint channel4;
-            uint channel5;
-            uint channel6;
-            uint channel7;
+            uint channel_0;
+            uint channel_1;
+            uint channel_2;
+            uint channel_3;
+            uint channel_4;
+            uint channel_5;
+            uint channel_6;
+            uint channel_7;
         };
     };
 }ADC_DATA_TYPE;
@@ -63,16 +64,19 @@ typedef enum
 {
     ADC_WAIT_INIT,
     ADC_IDLE,
-    ADC_BUSY
+    ADC_SCANNING,
+    ADC_CONVERTING
 } ADC_STATES;
 
 ADC_STATES ADC_STAT;
 
-ADC_DATA_TYPE ADC_DATA;
+ADC_DATA_TYPE ADC_DATA;// = {.controlbyte = 1, .index = 0};
 
 void ADC_Initialize(void);
 
 void ADC_Tasks(void);
+
+void ADC_Scan(void);
 
 int ADC_ReadMonitorLines(void);
 

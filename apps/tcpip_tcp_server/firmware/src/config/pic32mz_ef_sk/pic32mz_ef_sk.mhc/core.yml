@@ -2390,42 +2390,42 @@ children:
     - type: Values
       children:
       - type: Dynamic
-        attributes: {id: core, value: 'true'}
+        attributes: {id: core, value: 'false'}
   - type: Boolean
     attributes: {id: EVIC_155_HANDLER_LOCK}
     children:
     - type: Values
       children:
       - type: Dynamic
-        attributes: {id: core, value: 'true'}
+        attributes: {id: core, value: 'false'}
   - type: String
     attributes: {id: EVIC_155_INTERRUPT_HANDLER}
     children:
     - type: Values
       children:
       - type: Dynamic
-        attributes: {id: core, value: SPI3_RX_InterruptHandler}
+        attributes: {id: core, value: SPI3_RX_Handler}
   - type: Boolean
     attributes: {id: EVIC_156_ENABLE}
     children:
     - type: Values
       children:
       - type: Dynamic
-        attributes: {id: core, value: 'true'}
+        attributes: {id: core, value: 'false'}
   - type: Boolean
     attributes: {id: EVIC_156_HANDLER_LOCK}
     children:
     - type: Values
       children:
       - type: Dynamic
-        attributes: {id: core, value: 'true'}
+        attributes: {id: core, value: 'false'}
   - type: String
     attributes: {id: EVIC_156_INTERRUPT_HANDLER}
     children:
     - type: Values
       children:
       - type: Dynamic
-        attributes: {id: core, value: SPI3_TX_InterruptHandler}
+        attributes: {id: core, value: SPI3_TX_Handler}
   - type: Boolean
     attributes: {id: EVIC_167_ENABLE}
     children:
@@ -2922,56 +2922,56 @@ children:
     - type: Values
       children:
       - type: Dynamic
-        attributes: {id: spi3, value: 'true'}
+        attributes: {id: spi3, value: 'false'}
   - type: Boolean
     attributes: {id: SPI3_RX_INTERRUPT_ENABLE_UPDATE}
     children:
     - type: Values
       children:
       - type: Dynamic
-        attributes: {id: core, value: 'false'}
+        attributes: {id: core, value: 'true'}
   - type: String
     attributes: {id: SPI3_RX_INTERRUPT_HANDLER}
     children:
     - type: Values
       children:
       - type: Dynamic
-        attributes: {id: spi3, value: SPI3_RX_InterruptHandler}
+        attributes: {id: spi3, value: SPI3_RX_Handler}
   - type: Boolean
     attributes: {id: SPI3_RX_INTERRUPT_HANDLER_LOCK}
     children:
     - type: Values
       children:
       - type: Dynamic
-        attributes: {id: spi3, value: 'true'}
+        attributes: {id: spi3, value: 'false'}
   - type: Boolean
     attributes: {id: SPI3_TX_INTERRUPT_ENABLE}
     children:
     - type: Values
       children:
       - type: Dynamic
-        attributes: {id: spi3, value: 'true'}
+        attributes: {id: spi3, value: 'false'}
   - type: Boolean
     attributes: {id: SPI3_TX_INTERRUPT_ENABLE_UPDATE}
     children:
     - type: Values
       children:
       - type: Dynamic
-        attributes: {id: core, value: 'false'}
+        attributes: {id: core, value: 'true'}
   - type: String
     attributes: {id: SPI3_TX_INTERRUPT_HANDLER}
     children:
     - type: Values
       children:
       - type: Dynamic
-        attributes: {id: spi3, value: SPI3_TX_InterruptHandler}
+        attributes: {id: spi3, value: SPI3_TX_Handler}
   - type: Boolean
     attributes: {id: SPI3_TX_INTERRUPT_HANDLER_LOCK}
     children:
     - type: Values
       children:
       - type: Dynamic
-        attributes: {id: spi3, value: 'true'}
+        attributes: {id: spi3, value: 'false'}
   - type: Hex
     attributes: {id: SYS_PORT_A_ANSEL}
     children:

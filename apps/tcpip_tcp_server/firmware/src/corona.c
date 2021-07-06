@@ -110,7 +110,8 @@ void Corona_Tasks(void)
             break;
         case CORONA_MONITOR_READ:
             (*pCoronaCmdDevice->pCmdApi->print)(monitorReadCmdIoParam, "Starting ADC reading.\r\n");
-            if (ADC_ReadMonitorLines())
+            ADC_Scan();
+            if (ADC_STAT != ADC_IDLE)
             {
                 (*pCoronaCmdDevice->pCmdApi->print)(monitorReadCmdIoParam, "Waiting for ADC to complete.\r\n");
                 corona_state = CORONA_MONITOR_READING;
@@ -121,12 +122,17 @@ void Corona_Tasks(void)
             if (c == 0)
             {
                 (*pCoronaCmdDevice->pCmdApi->print)(monitorReadCmdIoParam, "Checking ADC status.\r\n");
-                (*pCoronaCmdDevice->pCmdApi->print)(monitorReadCmdIoParam, "Checking ADC value %d.\r\n", ADC_DATA.channel0);
+                ADC_Scan();
                 c++;
             }
+            
             if (ADC_STAT == ADC_IDLE)
             {
                 (*pCoronaCmdDevice->pCmdApi->print)(monitorReadCmdIoParam, "Monitor reading completed.\r\n");
+                float v = 10.0 * ADC_DATA.channel_0 / 0x03FFFF;
+                (*pCoronaCmdDevice->pCmdApi->print)(monitorReadCmdIoParam, "Channel 0 %f.\r\n", v);
+                v = 10.0 * ADC_DATA.channel_1 / 0x03FFFF;
+                (*pCoronaCmdDevice->pCmdApi->print)(monitorReadCmdIoParam, "Channel 1 %f.\r\n", v);
                 corona_state = CORONA_IDLE;
                 c = 0;
             }
