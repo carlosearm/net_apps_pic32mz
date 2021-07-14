@@ -95,9 +95,12 @@ THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE.
 // start up message
 // 2J is clear screen, 31m is red, 1m is bold
 // 0m is clear all attributes
-#define TELNET_START_MSG                "\x1b[2J\x1b[31m\x1b[1m" \
-                                "Microchip Telnet Server 1.1\x1b[0m\r\n" \
-								"Login: "
+
+// #define TELNET_START_MSG        "\x1b[2J\x1b[31m\x1b[1m" 
+// #define TELNET_START_MSG        "Microchip Telnet Server 1.1\x1b[0m\r\n" TELNET_CMD_IAC TELNET_CMD_DO TELNET_OPT_SUPP_LOCAL_ECHO
+//                                 "Login: "
+
+#define TELNET_START_MSG        "Microchip Telnet Server 1.1\r\n" TELNET_CMD_IAC TELNET_CMD_DO TELNET_OPT_SUPP_LOCAL_ECHO
 //
 // ask password message
 #define TELNET_ASK_PASSWORD_MSG     "Password: " TELNET_CMD_IAC TELNET_CMD_DO TELNET_OPT_SUPP_LOCAL_ECHO        // ask Suppress Local Echo
@@ -176,9 +179,9 @@ static void _Telnet_Cleanup(void);
 #define _Telnet_Cleanup()
 #endif  // (TCPIP_STACK_DOWN_OPERATION != 0)
 
-static TCPIP_TELNET_STATE _Telnet_UserCheck(TELNET_DCPT* pDcpt);
-static TCPIP_TELNET_STATE _Telnet_LogonCheck(TELNET_DCPT* pDcpt);
-static TELNET_MSG_LINE_RES _Telnet_MessageLineCheck(NET_PRES_SKT_HANDLE_T tSkt, char** pLineBuffer, int bufferSize, int* readBytes);
+//static TCPIP_TELNET_STATE _Telnet_UserCheck(TELNET_DCPT* pDcpt);
+//static TCPIP_TELNET_STATE _Telnet_LogonCheck(TELNET_DCPT* pDcpt);
+//static TELNET_MSG_LINE_RES _Telnet_MessageLineCheck(NET_PRES_SKT_HANDLE_T tSkt, char** pLineBuffer, int bufferSize, int* readBytes);
 static char* _Telnet_Process_CmdOptions(const char* strMsg, int avlblBytes);
 
 static void TCPIP_TELNET_Process(void);
@@ -521,16 +524,9 @@ static void TCPIP_TELNET_Process(void)
                 
                 // Send the packet
                 NET_PRES_SocketFlush(tSocket);
-                tState++;
-
-            case TCPIP_TELNET_GET_LOGIN:
-                tState = _Telnet_UserCheck(pDcpt);
-                break;
-
-            case TCPIP_TELNET_GET_PASSWORD:
-                tState = _Telnet_LogonCheck(pDcpt);
-                break;
-
+                //tState++;
+                tState = TCPIP_TELNET_AUTHENTICATED;
+                
             case TCPIP_TELNET_AUTHENTICATED:
                 if(NET_PRES_SocketWriteIsReady(tSocket, TELNET_SKT_MESSAGE_SPACE, 0) < TELNET_SKT_MESSAGE_SPACE)
                     break;
@@ -550,6 +546,8 @@ static void TCPIP_TELNET_Process(void)
                     break;
                 }	
 
+            case TCPIP_TELNET_GET_LOGIN:
+            case TCPIP_TELNET_GET_PASSWORD:
             case TCPIP_TELNET_CONNECTED:
                 // Check if you're disconnected and de-register from the command processor
 
@@ -562,7 +560,7 @@ static void TCPIP_TELNET_Process(void)
     }
 
 }
-
+/*
 static TCPIP_TELNET_STATE _Telnet_UserCheck(TELNET_DCPT* pDcpt)
 {
     int         avlblBytes;
@@ -707,7 +705,9 @@ static TCPIP_TELNET_STATE _Telnet_LogonCheck(TELNET_DCPT* pDcpt)
     return TCPIP_TELNET_AUTHENTICATED;
 
 }
+*/
 
+/*
 // checks if a complete line is assembled
 static TELNET_MSG_LINE_RES _Telnet_MessageLineCheck(NET_PRES_SKT_HANDLE_T tSkt, char** pLineBuffer, int bufferSize, int* readBytes)
 {
@@ -761,6 +761,7 @@ static TELNET_MSG_LINE_RES _Telnet_MessageLineCheck(NET_PRES_SKT_HANDLE_T tSkt, 
     return TELNET_MSG_LINE_PENDING;
 
 }
+*/
 
 // process telnet commands and options
 // returns a pointer to the message after the options were processed

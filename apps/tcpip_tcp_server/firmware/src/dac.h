@@ -2,18 +2,21 @@
 /** Descriptive File Name
 
   @Company
-    Semilab SDI
+    Company Name
 
   @File Name
-    ADC.h
+    filename.h
 
   @Summary
-    Handles communication with ADC LTC2333-18 using SPI3
+    Brief description of the file.
+
+  @Description
+    Describe the purpose of this file.
  */
 /* ************************************************************************** */
 
-#ifndef _ADC_H    /* Guard against multiple inclusion */
-#define _ADC_H
+#ifndef _DAC_H    /* Guard against multiple inclusion */
+#define _DAC_H
 
 
 /* ************************************************************************** */
@@ -29,58 +32,19 @@
 #include "configuration.h"
 #include "definitions.h"
 
-
 /* Provide C++ Compatibility */
 #ifdef __cplusplus
 extern "C" {
 #endif
+    
+    void DAC_Reset(void);
+    
+    void DAC_SetCoronaDose(double dose);
+    
+    void DAC_SetCoronaDoseZero(void);
 
 
-typedef unsigned char BYTE;
-typedef unsigned int DWORD;
-
-typedef struct
-{
-    BYTE controlbyte;
-    BYTE index;
-    union
-    {
-        uint channels[8];
-        struct
-        {
-            uint channel_0;
-            uint channel_1;
-            uint channel_2;
-            uint channel_3;
-            uint channel_4;
-            uint channel_5;
-            uint channel_6;
-            uint channel_7;
-        };
-    };
-}ADC_DATA_TYPE;
-
-ADC_DATA_TYPE ADC_DATA;
-
-typedef enum 
-{
-    ADC_WAIT_INIT,
-    ADC_IDLE,
-    ADC_SCANNING,
-    ADC_CONVERTING,
-    ADC_COMPLETE
-} ADC_STATES;
-
-ADC_STATES ADC_STAT;
-
-
-void ADC_Initialize(void);
-
-void ADC_Tasks(void);
-
-void ADC_Scan(void);
-
-    /* Provide C++ Compatibility */
+/* Provide C++ Compatibility */
 #ifdef __cplusplus
 }
 #endif

@@ -31,6 +31,7 @@
 #include <stdlib.h>
 #include "configuration.h"
 #include "adc.h"
+#include "dac.h"
 
 
 /* Provide C++ Compatibility */
@@ -44,8 +45,18 @@ typedef enum
     CORONA_IDLE,
     CORONA_ERROR,
     CORONA_MONITOR_READ,
-    CORONA_MONITOR_READING
+    CORONA_BAR_INIT,
+    CORONA_BAR_DONE,
+    CORONA_CHARGING
 }CORONA_STATES;
+
+typedef enum
+{
+    CORONA_MODE_NONE,
+    CORONA_MODE_BAR,
+    CORONA_MODE_MACRO,
+    CORONA_MODE_MICRO
+}CORONA_MODES;
 
 void Corona_Initialize(void);
 

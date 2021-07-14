@@ -94,7 +94,7 @@ typedef struct
 
 
 #define         LINE_TERM       "\r\n"          // line terminator
-#define         _promptStr      ">"             // prompt string
+#define         _promptStr      ""              // prompt string
 
 // descriptor of the command I/O node
 typedef struct SYS_CMD_IO_DCPT

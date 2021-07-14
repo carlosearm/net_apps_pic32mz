@@ -708,6 +708,5 @@ typedef struct TCPIP_STACK_INIT
 #include "tcpip/icmp.h"
 #include "tcpip/telnet.h"
 #include "tcpip/lldp.h"
-#include "tcpip/tcpip_commands.h"
 #endif  // __TCPIP_H__
 

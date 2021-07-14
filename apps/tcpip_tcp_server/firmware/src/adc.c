@@ -46,7 +46,6 @@ void ADC_Scan(void)
 }
 
 static BYTE GetNextIndex();
-//static int DoOneReading();
 
 void ADC_Tasks()
 {
@@ -58,17 +57,18 @@ void ADC_Tasks()
             ADC_STAT = ADC_IDLE;
             break;
         case ADC_IDLE:
+       case ADC_COMPLETE:
             break;
         case ADC_SCANNING:
             if (ADC_DATA.controlbyte & (1 << ADC_DATA.index))
             {
-               int i;
-               for(i=0; i<ADC_DATA.index; i++)
+               /*int i;
+               for(i=0; i<=ADC_DATA.index; i++)
                {
                    COCOS_BAR_COR_ENABLED_Clear();
                    COCOS_BAR_COR_ENABLED_Set();
                    COCOS_BAR_COR_ENABLED_Clear();
-               }
+               }*/
                 ADC_CNV_Set();
                 ADC_CNV_Clear();
                 ADC_STAT = ADC_CONVERTING;
@@ -80,7 +80,7 @@ void ADC_Tasks()
            if (ADC_BUSY_Get() == 0)
            {
                BYTE next_index = GetNextIndex();
-               DWORD cmd = (0x80000000)|(next_index << 27);
+               DWORD cmd = (read_cmd)|(next_index << 27);
                SPI3_WriteRead(&cmd, 4, &receive, 4);
                if (receive == 0) 
                {
@@ -88,8 +88,12 @@ void ADC_Tasks()
                    break;
                }
                if ((receive >> 24) == (receive & 0x000000FF))
-                   ADC_DATA.channels[ADC_DATA.index] = receive >> 14;
-               ADC_STAT = next_index > ADC_DATA.index ? ADC_SCANNING : ADC_IDLE;
+               {
+                   int i = (receive >> 11) & 7;
+                   ADC_DATA.channels[i] = receive >> 14;
+                   //ADC_DATA.channels[ADC_DATA.index] = receive >> 14;
+               }
+               ADC_STAT = next_index > ADC_DATA.index ? ADC_SCANNING : ADC_COMPLETE;
                ADC_DATA.index = next_index;
            }
            break;
@@ -106,35 +110,6 @@ static BYTE GetNextIndex()
         index %= 8;
     }
     return index;
-}
-
-/*static int DoOneReading()
-{
-    ADC_CNV_Set();
-    ADC_CNV_Clear();
-    while (ADC_BUSY_Get() != 0)
-    {
-    }
-    return SPI3_WriteRead(&read_cmd, 4, &receive, 4);
-    //return SPI3_WriteRead(&read_none, 4, &receive, 4);
-}*/
-
-int ADC_ReadMonitorLines(void)
-{
-    if (ADC_STAT != ADC_IDLE)
-        return 0;
-    /*ADC_STAT = ADC_BUSY;
-    DoOneReading();
-    //if (receive == 0)
-      //  DoOneReading();
-    if ((receive >> 24) == (receive & 0x000000FF))
-    {
-        ADC_DATA.controlbyte = 1;
-        ADC_DATA.channel0 = receive >> 14;
-        ADC_STAT = ADC_IDLE;
-    }
-    ADC_STAT = ADC_IDLE;*/
-    return 1;    
 }
 
 /* *****************************************************************************
