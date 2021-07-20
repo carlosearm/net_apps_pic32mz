@@ -42,7 +42,8 @@ extern "C" {
     void DAC_SetCoronaDose(double dose);
     
     void DAC_SetCoronaDoseZero(void);
-
+    
+    void DAC_SetBiasValue(double dose);
 
 /* Provide C++ Compatibility */
 #ifdef __cplusplus

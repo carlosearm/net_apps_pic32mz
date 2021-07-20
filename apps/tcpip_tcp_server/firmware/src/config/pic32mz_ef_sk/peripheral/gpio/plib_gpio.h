@@ -80,15 +80,6 @@
 #define HVPS_ON_INTERLOCKED_Get()               ((PORTA >> 5) & 0x1)
 #define HVPS_ON_INTERLOCKED_PIN                  GPIO_PIN_RA5
 
-/*** Macros for ADC_CNV pin ***/
-#define ADC_CNV_Set()               (LATESET = (1<<6))
-#define ADC_CNV_Clear()             (LATECLR = (1<<6))
-#define ADC_CNV_Toggle()            (LATEINV= (1<<6))
-#define ADC_CNV_OutputEnable()      (TRISECLR = (1<<6))
-#define ADC_CNV_InputEnable()       (TRISESET = (1<<6))
-#define ADC_CNV_Get()               ((PORTE >> 6) & 0x1)
-#define ADC_CNV_PIN                  GPIO_PIN_RE6
-
 /*** Macros for DAC2_LDAC pin ***/
 #define DAC2_LDAC_Set()               (LATJSET = (1<<13))
 #define DAC2_LDAC_Clear()             (LATJCLR = (1<<13))
@@ -124,6 +115,15 @@
 #define ADC_BUSY_InputEnable()       (TRISBSET = (1<<11))
 #define ADC_BUSY_Get()               ((PORTB >> 11) & 0x1)
 #define ADC_BUSY_PIN                  GPIO_PIN_RB11
+
+/*** Macros for ADC_CNV pin ***/
+#define ADC_CNV_Set()               (LATKSET = (1<<1))
+#define ADC_CNV_Clear()             (LATKCLR = (1<<1))
+#define ADC_CNV_Toggle()            (LATKINV= (1<<1))
+#define ADC_CNV_OutputEnable()      (TRISKCLR = (1<<1))
+#define ADC_CNV_InputEnable()       (TRISKSET = (1<<1))
+#define ADC_CNV_Get()               ((PORTK >> 1) & 0x1)
+#define ADC_CNV_PIN                  GPIO_PIN_RK1
 
 /*** Macros for SWITCH3 pin ***/
 #define SWITCH3_Set()               (LATDSET = (1<<0))

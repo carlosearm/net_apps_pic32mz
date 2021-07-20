@@ -66,6 +66,13 @@ void DAC_SetCoronaDoseZero(void)
     SPI1_Write(&cmd, 4);
 }
 
+void DAC_SetBiasValue(double dose)
+{
+    DWORD value = DAC_MAX_VALUE * dose / 10.0;
+    DWORD cmd = CMD_WRITE_UPDATE | ADDR_2 | value;
+    SPI1_Write(&cmd, 4);
+}
+
 /* *****************************************************************************
  End of File
  */

@@ -23,6 +23,8 @@ children:
     children:
     - type: Values
       children:
+      - type: Dynamic
+        attributes: {id: tcpip_basic_config, value: 'true'}
       - type: User
         attributes: {value: 'false'}
 - type: ElementPosition
