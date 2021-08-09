@@ -66,8 +66,6 @@ void TIMER_3_InterruptHandler( void );
 void UART1_FAULT_InterruptHandler( void );
 void UART1_RX_InterruptHandler( void );
 void UART1_TX_InterruptHandler( void );
-void SPI2_RX_InterruptHandler( void );
-void SPI2_TX_InterruptHandler( void );
 void ETHERNET_InterruptHandler( void );
 void NVM_InterruptHandler( void );
 
@@ -97,16 +95,6 @@ void __ISR(_UART1_RX_VECTOR, ipl1SRS) UART1_RX_Handler (void)
 void __ISR(_UART1_TX_VECTOR, ipl1SRS) UART1_TX_Handler (void)
 {
     UART1_TX_InterruptHandler();
-}
-
-void __ISR(_SPI2_RX_VECTOR, ipl1SRS) SPI2_RX_Handler (void)
-{
-    SPI2_RX_InterruptHandler();
-}
-
-void __ISR(_SPI2_TX_VECTOR, ipl1SRS) SPI2_TX_Handler (void)
-{
-    SPI2_TX_InterruptHandler();
 }
 
 void __ISR(_ETHERNET_VECTOR, ipl1SRS) ETHERNET_Handler (void)

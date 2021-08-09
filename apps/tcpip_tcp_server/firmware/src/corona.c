@@ -44,6 +44,7 @@ double target_corona_dose;
 double corona_ramp_increment;
 double macro_dose;
 double corona_bias;
+uint shutter_time;
 GPIO_PIN corona_pin_select;
 
 static SYS_CMD_DEVICE_NODE* pCoronaCmdDevice = 0;
@@ -80,10 +81,12 @@ static int _Command_SetChuckBias(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** a
 static int _Command_Init_Macro(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv);
 static int _Command_Done_Macro(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv);
 static int _Command_Shutter(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv);
+static int _Command_Shutter_MS(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv);
+static int _Command_Shutter_S(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv);
 
 #define         LINE_TERM       "\r\n"
 #define         RESP_OK         "+OK."  LINE_TERM
-#define         RESP_ERROR      "-ERR." LINE_TERM
+#define         RESP_ERROR      "-ERR." 
 
 static const SYS_CMD_DESCRIPTOR coronaCmdTable[] = 
 {
@@ -98,7 +101,9 @@ static const SYS_CMD_DESCRIPTOR coronaCmdTable[] =
     {"done_bar",        (SYS_CMD_FNC)_Command_Done_Bar,         ": Finalizes Bar corona."},
     {"init_macro",      (SYS_CMD_FNC)_Command_Init_Macro,       ": Initializes Macro Point Source Corona."},
     {"done_macro",      (SYS_CMD_FNC)_Command_Done_Macro,       ": Finalizes Macro Point Source Corona."},
-    {"shutter",         (SYS_CMD_FNC)_Command_Shutter,          ": Open Close Shutter."}
+    {"shutter",         (SYS_CMD_FNC)_Command_Shutter,          ": Open Close Shutter microseconds."},
+    {"shutterms",       (SYS_CMD_FNC)_Command_Shutter_MS,       ": Open Close Shutter milliseconds."},
+    {"shutters",        (SYS_CMD_FNC)_Command_Shutter_S,        ": Open Close Shutter seconds."}
 };
 
 /* ************************************************************************** */
@@ -188,20 +193,28 @@ static int _Command_SetDose(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
 {
     CmdIoParam = pCmdIO->cmdIoParam;
     pCoronaCmdDevice = pCmdIO;
-    if ((CORONA_MODE != CORONA_MODE_BAR) || (CORONA_STATUS != CORONA_CHARGING))
-    {
-        (*pCmdIO->pCmdApi->msg)(CmdIoParam, RESP_ERROR "Not allowed to change dose." LINE_TERM);
-        return 0;
-    }
     if (argc < 2)
     {
         (*pCmdIO->pCmdApi->msg)(CmdIoParam, RESP_ERROR "Not enough arguments." LINE_TERM);
         return 0;
     }
-    target_corona_dose = atof(argv[1]);
-    corona_ramp_increment = target_corona_dose > last_corona_dose ? 
-        fabs(corona_ramp_increment) : -fabs(corona_ramp_increment);
-    CORONA_STATUS = CORONA_BAR_RAMP;
+    if (CORONA_MODE == CORONA_MODE_BAR)
+    {
+        if (CORONA_STATUS == CORONA_CHARGING)
+        {
+            target_corona_dose = atof(argv[1]);
+            corona_ramp_increment = target_corona_dose > last_corona_dose ? 
+                fabs(corona_ramp_increment) : -fabs(corona_ramp_increment);
+            CORONA_STATUS = CORONA_BAR_RAMP;
+            return 1;
+        }
+        (*pCmdIO->pCmdApi->msg)(CmdIoParam, RESP_ERROR "Not allowed to change dose." LINE_TERM);
+        return 0;
+    }
+    macro_dose = atof(argv[1]);
+    //if (CORONA_STATUS == CORONA_MACRO_READY)
+    DAC_SetCoronaDose(fabs(macro_dose));
+    (*pCoronaCmdDevice->pCmdApi->print)(CmdIoParam, RESP_OK);
     return 1;
 }
 
@@ -266,20 +279,35 @@ static int _Command_Done_Macro(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** arg
 
 void OpenMacroShutter(void)
 {
-    DAC_SetCoronaDose(fabs(macro_dose)); 
+    //DAC_SetCoronaDose(fabs(macro_dose)); 
     BIAS_VOLTAGE_ENABLED_Set();
+    HIGH_VOLTAGE_ENABLED_Set();
 }
 
 void CloseMacroShutter(void)
 {
-    DAC_SetCoronaDoseZero();
+    HIGH_VOLTAGE_ENABLED_Clear();
     BIAS_VOLTAGE_ENABLED_Clear();
+    //DAC_SetCoronaDoseZero();
 }
 
 void TIMER2_InterruptSvcRoutine(uint32_t status, uintptr_t context)
 {
     TMR2_Stop();
+    CloseMacroShutter();
     CORONA_STATUS = CORONA_MACRO_DONE_CHARGING;
+}
+
+void DoMacroShutter(uint32_t conset, uint32_t period)
+{
+    TMR2_CallbackRegister(TIMER2_InterruptSvcRoutine, NULL);
+    T2CONCLR = _T2CON_ON_MASK;
+    T2CONCLR = 0x70;
+    T2CONSET = conset;
+    PR2 = (period);
+    OpenMacroShutter();
+    T2CONSET = _T2CON_ON_MASK;
+    CORONA_STATUS = CORONA_MACRO_START_CHARGING;
 }
 
 static int _Command_Shutter(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
@@ -297,18 +325,52 @@ static int _Command_Shutter(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
         return 0;
     }
     uint t = atoi(argv[1]);
-    TMR2_CallbackRegister(TIMER2_InterruptSvcRoutine, NULL);
-    TMR2_PeriodSet(t * 99U);
-    CORONA_STATUS = CORONA_CHARGING;
-    OpenMacroShutter();
-    TMR2_Start();
+    DoMacroShutter(0x0, t * 99U);
+    return 1;
+}
+
+static int _Command_Shutter_MS(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
+{
+    CmdIoParam = pCmdIO->cmdIoParam;
+    pCoronaCmdDevice = pCmdIO;
+    if (CORONA_STATUS != CORONA_MACRO_READY)
+    {
+        (*pCmdIO->pCmdApi->msg)(CmdIoParam, RESP_ERROR "Not allowed to open/close shutter." LINE_TERM);
+        return 0;
+    }
+    if (argc < 2)
+    {
+        (*pCmdIO->pCmdApi->msg)(CmdIoParam, RESP_ERROR "Not enough arguments." LINE_TERM);
+        return 0;
+    }
+    uint t = atoi(argv[1]);
+    DoMacroShutter(0x30, t * 12498U);
+    return 1;
+}
+
+static int _Command_Shutter_S(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
+{
+    CmdIoParam = pCmdIO->cmdIoParam;
+    pCoronaCmdDevice = pCmdIO;
+    if (CORONA_STATUS != CORONA_MACRO_READY)
+    {
+        (*pCmdIO->pCmdApi->msg)(CmdIoParam, RESP_ERROR "Not allowed to open/close shutter." LINE_TERM);
+        return 0;
+    }
+    if (argc < 2)
+    {
+        (*pCmdIO->pCmdApi->msg)(CmdIoParam, RESP_ERROR "Not enough arguments." LINE_TERM);
+        return 0;
+    }
+    uint t = atof(argv[1]) * 1000;
+    DoMacroShutter(0x50, t * 3123U);
     return 1;
 }
 
 static int _Command_Ver(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
 {
     const void* cmdIoParam = pCmdIO->cmdIoParam;
-    (*pCmdIO->pCmdApi->msg)(cmdIoParam, RESP_OK "Version Alpha 1." LINE_TERM);
+    (*pCmdIO->pCmdApi->msg)(cmdIoParam, RESP_OK "Version Beta 1." LINE_TERM);
     return 1;
 }
 
@@ -336,12 +398,13 @@ void Corona_Initialize(void)
 static void CoronaReset(void)
 {
     HVPS_ON_INTERLOCKED_Set();
+    T2CONCLR = _T2CON_ON_MASK;
+    T2CONCLR = 0x70;
     DAC_Reset();
     GPIO_PinClear(HIGH_VOLTAGE_ENABLED_PIN);
     GPIO_PinClear(BIAS_VOLTAGE_ENABLED_PIN);
     GPIO_PinClear(HV_POLARITY_NEG_POS_PIN);
     GPIO_PinClear(CORONA_BIAS_POLARITY_NEG_POS_PIN);
-    GPIO_PinClear(HVPS_ON_INTERLOCKED_PIN);
     GPIO_PinClear(COCOS_BAR_COR_ENABLED_PIN);
     GPIO_PinClear(MC_BAR_COR_ENABLED_PIN);
     GPIO_PinClear(MACRO_LOW_DOSE_COR_ENABLED_PIN);
@@ -350,6 +413,7 @@ static void CoronaReset(void)
     GPIO_PinClear(MICRO_HIGH_DOSE_COR_ENABLED_PIN);
     GPIO_PinClear(CORONA_GRN_RESISTOR_BYPASS_PIN);
     GPIO_PinClear(BIAS_MICRO_MODE_SELECT_PIN);
+    CORONA_MODE = CORONA_MODE_NONE;
 }
 
 void Corona_Tasks(void)
@@ -409,12 +473,14 @@ void Corona_Tasks(void)
             (*pCoronaCmdDevice->pCmdApi->print)(CmdIoParam, RESP_OK);
             break;
         case CORONA_MACRO_INIT:
+            HIGH_VOLTAGE_ENABLED_Clear();
             BIAS_MICRO_MODE_SELECT_Clear();
             GPIO_PinSet(corona_pin_select);
             GPIO_PinWrite(HV_POLARITY_NEG_POS_PIN, macro_dose < 0);
             DAC_SetBiasValue(fabs(corona_bias));
-            DAC_SetCoronaDoseZero();
-            HIGH_VOLTAGE_ENABLED_Set();
+            //DAC_SetCoronaDoseZero();
+            DAC_SetCoronaDose(fabs(macro_dose));
+            //HIGH_VOLTAGE_ENABLED_Set();
             (*pCoronaCmdDevice->pCmdApi->print)(CmdIoParam, RESP_OK);
             CORONA_STATUS = CORONA_MACRO_READY;
             break;
@@ -426,8 +492,11 @@ void Corona_Tasks(void)
             (*pCoronaCmdDevice->pCmdApi->print)(CmdIoParam, RESP_OK);
             CORONA_STATUS = CORONA_IDLE;
             break;
+        case CORONA_MACRO_START_CHARGING:
+            CORONA_STATUS = CORONA_CHARGING;
+            break;
         case CORONA_MACRO_DONE_CHARGING:
-            CloseMacroShutter();
+            //CloseMacroShutter();
             (*pCoronaCmdDevice->pCmdApi->print)(CmdIoParam, RESP_OK);
             CORONA_STATUS = CORONA_MACRO_READY;
             break;

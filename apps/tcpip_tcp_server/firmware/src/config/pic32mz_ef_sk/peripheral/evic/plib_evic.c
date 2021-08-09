@@ -60,8 +60,6 @@ void EVIC_Initialize( void )
     IPC28SET = 0x4 | 0x0;  /* UART1_FAULT:  Priority 1 / Subpriority 0 */
     IPC28SET = 0x400 | 0x0;  /* UART1_RX:  Priority 1 / Subpriority 0 */
     IPC28SET = 0x40000 | 0x0;  /* UART1_TX:  Priority 1 / Subpriority 0 */
-    IPC35SET = 0x4000000 | 0x0;  /* SPI2_RX:  Priority 1 / Subpriority 0 */
-    IPC36SET = 0x4 | 0x0;  /* SPI2_TX:  Priority 1 / Subpriority 0 */
     IPC38SET = 0x400 | 0x0;  /* ETHERNET:  Priority 1 / Subpriority 0 */
     IPC41SET = 0x4000000 | 0x0;  /* FLASH_CONTROL:  Priority 1 / Subpriority 0 */
 

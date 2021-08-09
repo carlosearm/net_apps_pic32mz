@@ -83,11 +83,25 @@ int main ( void )
 
     //ADC_CNV_Clear();
 
+    //uint last_value = 0;
 
     while ( true )
     {
         /* Maintain state machines of all polled MPLAB Harmony modules. */
         SYS_Tasks ( );
+        /*
+        GPIO_PinWrite(COCOS_BAR_COR_ENABLED_PIN, SWITCH3_Get());
+        
+        uint v = SWITCH3_Get();
+        if (v != last_value);
+        {
+            if (v == 0)
+                DAC_SetBiasValue(5);
+            else
+                DAC_SetBiasValue(2);
+        }
+        
+        last_value = v;*/
         
         /*
         SPI3_Write(&read_control, 4);

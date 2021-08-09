@@ -57,7 +57,7 @@ void ADC_Tasks()
             ADC_STAT = ADC_IDLE;
             break;
         case ADC_IDLE:
-       case ADC_COMPLETE:
+        case ADC_COMPLETE:
             break;
         case ADC_SCANNING:
             if (ADC_DATA.controlbyte & (1 << ADC_DATA.index))
