@@ -32,6 +32,14 @@ DWORD DAC_MAX_VALUE = 0x0000FFFF;
 DWORD DAC_SPAN_0_5   = 0x00000000;
 DWORD DAC_SPAN_0_10  = 0x00000001;
 
+DWORD DAC_MUX_CMD   = 0x00B00000;
+DWORD DAC_MUX_VOUT0 = 0x00000011;
+DWORD DAC_MUX_VOUT1 = 0x00000011;
+DWORD DAC_MUX_VOUT2 = 0x00000015;
+DWORD DAC_MUX_VOUT3 = 0x00000016;
+DWORD DAC_MUX_REF   = 0x00000019;
+DWORD DAC_MUX_VPLUS = 0x0000001B;
+
 /*
 unsigned int data = 0x00F00000;
 unsigned int write_max_cmd = 0x0000FFFF;
@@ -51,6 +59,7 @@ void DAC_Reset(void)
     SPI1_Write(&cmd, 4);
     cmd = CMD_WRITE_UPDATE_ALL | DAC_MIN_VALUE;
     SPI1_Write(&cmd, 4);
+    DAC_DisableMux();
 }
 
 void DAC_SetCoronaDose(double dose)
@@ -72,6 +81,39 @@ void DAC_SetBiasValue(double dose)
     DWORD cmd = CMD_WRITE_UPDATE | ADDR_2 | value;
     SPI1_Write(&cmd, 4);
 }
+
+void DAC_SetChuckBiasValue(double dose)
+{
+    
+}
+    
+void DAC_DisableMux(void)
+{
+    DWORD cmd = DAC_MUX_CMD | DAC_MUX_VOUT0;
+    SPI1_Write(&cmd, 4);
+}
+    
+void DAC_SetMuxOut(uint vout)
+{
+    DWORD cmd = DAC_MUX_CMD;
+    switch(vout)
+    {
+        case 0  :
+            cmd |= DAC_MUX_VOUT0;
+            break;
+        case 1  :
+            cmd |= DAC_MUX_VOUT1;
+            break;
+        case 2  :
+            cmd |= DAC_MUX_VOUT2;
+            break;
+        case 3  :
+            cmd |= DAC_MUX_VOUT3;
+            break;
+    }
+    SPI1_Write(&cmd, 4);
+}
+
 
 /* *****************************************************************************
  End of File

@@ -31,16 +31,27 @@ void ADC_Initialize(void)
 {
     //ADC_CNV_Clear();
     ADC_STAT = ADC_WAIT_INIT;
+    ADC_DATA.controlbyte = 3;
+}
+
+void ADC_Reset(void)
+{
+    ADC_Initialize();
 }
 
 void ADC_Scan(void)
 {
     if (ADC_STAT == ADC_IDLE)
     {
-        ADC_DATA.controlbyte = 3;
         ADC_DATA.index = 0;
         ADC_DATA.channel_0 = 0;
         ADC_DATA.channel_1 = 0;
+        ADC_DATA.channel_2 = 0;
+        ADC_DATA.channel_3 = 0;
+        ADC_DATA.channel_4 = 0;
+        ADC_DATA.channel_5 = 0;
+        ADC_DATA.channel_6 = 0;
+        ADC_DATA.channel_7 = 0;
         ADC_STAT = ADC_SCANNING;
     }
 }
@@ -62,13 +73,6 @@ void ADC_Tasks()
         case ADC_SCANNING:
             if (ADC_DATA.controlbyte & (1 << ADC_DATA.index))
             {
-               /*int i;
-               for(i=0; i<=ADC_DATA.index; i++)
-               {
-                   COCOS_BAR_COR_ENABLED_Clear();
-                   COCOS_BAR_COR_ENABLED_Set();
-                   COCOS_BAR_COR_ENABLED_Clear();
-               }*/
                 ADC_CNV_Set();
                 ADC_CNV_Clear();
                 ADC_STAT = ADC_CONVERTING;

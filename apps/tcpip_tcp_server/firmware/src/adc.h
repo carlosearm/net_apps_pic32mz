@@ -76,6 +76,8 @@ ADC_STATES ADC_STAT;
 
 void ADC_Initialize(void);
 
+void ADC_Reset(void);
+
 void ADC_Tasks(void);
 
 void ADC_Scan(void);
