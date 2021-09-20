@@ -47,9 +47,11 @@ extern "C" {
     
     void DAC_SetChuckBiasValue(double dose);
     
-    void DAC_DisableMux(void);
+    //void DAC_DisableMux(void);
     
-    void DAC_SetMuxOut(uint vout);
+    //void DAC_SetMuxOut(uint vout);
+    
+    void DAC_PowerDown();
 
 /* Provide C++ Compatibility */
 #ifdef __cplusplus

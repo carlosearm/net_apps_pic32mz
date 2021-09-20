@@ -995,9 +995,7 @@
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="1d000000-1d1fffff"/>
         <property key="poweroptions.powerenable" value="false"/>
-        <property key="programmerToGoFilePath"
-                  value="C:/Git/net_apps_pic32mz/apps/tcpip_tcp_server/firmware/pic32mz_ef_sk.X/debug/pic32mz_ef_sk/pic32mz_ef_sk_ptg"/>
-        <property key="programmerToGoImageName" value="pic32mz_ef_sk_ptg"/>
+        <property key="programmerToGoImageName" value="corona_ptg"/>
         <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>
         <property key="programoptions.ledbrightness" value="5"/>

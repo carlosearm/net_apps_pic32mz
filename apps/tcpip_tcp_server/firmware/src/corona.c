@@ -1,4 +1,3 @@
-/* ************************************************************************** */
 /** Descriptive File Name
 
   @Company
@@ -36,6 +35,7 @@
 
 CORONA_STATES CORONA_STATUS;
 CORONA_MODES CORONA_MODE;
+MICRO_DONE_STATES MICRO_DONE_STATUS;
 TEST_STATUS TEST_STATE;
 
 CORONA_STATES corona_status_backup;
@@ -46,6 +46,12 @@ double corona_ramp_increment;
 double macro_dose;
 double micro_dose;
 double corona_bias;
+double micro_bias_delay;
+
+uint32_t micro_done_delay_start;
+uint32_t micro_done_delay_end;
+
+uint32_t corona_delay;
 uint shutter_time;
 GPIO_PIN corona_pin_select;
 
@@ -70,9 +76,12 @@ static const GPIO_PIN corona_io_pins[] =
 };
 
 static void CoronaReset(void);
+static void MicroDoneTask(void);
 static void CoronaTest_Task(void);
 
 static int _Command_Reset(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv);
+static int _Command_PowerDown(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv);
+static int _Command_Discharge(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv);
 static int _Command_Ver(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv);
 static int _Command_Monitor_Read(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv);
 static int _Command_IOSet(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv);
@@ -94,10 +103,14 @@ static int _Command_Shutter_Close(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** 
 #define         LINE_TERM       "\r\n"
 #define         RESP_OK         "+OK."  LINE_TERM
 #define         RESP_ERROR      "-ERR." 
+#define         COMMENT         "CMT."
+#define         VERSION_NUMBER  "1.0.4.0"
 
 static const SYS_CMD_DESCRIPTOR coronaCmdTable[] = 
 {
     {"cor_reset",       (SYS_CMD_FNC)_Command_Reset,            ": Reset corona control."},
+    {"power_down",      (SYS_CMD_FNC)_Command_PowerDown,        ": Power down components."}, 
+    {"discharge",       (SYS_CMD_FNC)_Command_Discharge,        ": Discharge relays."}, 
     {"version",         (SYS_CMD_FNC)_Command_Ver,              ": Get corona version information."},
     {"adcscan",         (SYS_CMD_FNC)_Command_Monitor_Read,     ": Read ADC output."},
     {"ioset",           (SYS_CMD_FNC)_Command_IOSet,            ": Sets GPIO functions."},
@@ -129,6 +142,53 @@ static int _Command_Reset(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
     CoronaReset();
     (*pCmdIO->pCmdApi->msg)(cmdIoParam, RESP_OK);
     CORONA_STATUS = CORONA_IDLE;
+    MICRO_DONE_STATUS = MICRO_DONE_IDLE;
+    return 1;
+}
+
+static int _Command_PowerDown(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
+{
+    const void* cmdIoParam = pCmdIO->cmdIoParam;
+    DAC_PowerDown();
+    (*pCmdIO->pCmdApi->msg)(cmdIoParam, RESP_OK);
+    return 1;
+}
+
+static int _Command_Discharge(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
+{
+    const void* cmdIoParam = pCmdIO->cmdIoParam;
+    uint32_t delay = 1;
+    if (argc > 1)
+        delay = atoi(argv[1]);
+
+    MC_BAR_COR_ENABLED_Set();
+    CORETIMER_DelayMs(delay);
+    COCOS_BAR_COR_ENABLED_Set();
+    CORETIMER_DelayMs(delay);
+    MACRO_LOW_DOSE_COR_ENABLED_Set();
+    CORETIMER_DelayMs(delay);
+    MACRO_HIGH_DOSE_COR_ENABLED_Set();
+    CORETIMER_DelayMs(delay);
+    MICRO_LOW_DOSE_COR_ENABLED_Set();
+    CORETIMER_DelayMs(delay);
+    MICRO_HIGH_DOSE_COR_ENABLED_Set();
+    CORETIMER_DelayMs(delay);
+            
+    COCOS_BAR_COR_ENABLED_Clear();
+    CORETIMER_DelayMs(delay);
+    MACRO_LOW_DOSE_COR_ENABLED_Clear();
+    CORETIMER_DelayMs(delay);
+    MACRO_HIGH_DOSE_COR_ENABLED_Clear();
+    CORETIMER_DelayMs(delay);
+    MICRO_LOW_DOSE_COR_ENABLED_Clear();
+    CORETIMER_DelayMs(delay);
+    MICRO_HIGH_DOSE_COR_ENABLED_Clear();
+    CORETIMER_DelayMs(delay);
+    MC_BAR_COR_ENABLED_Clear();
+    CORETIMER_DelayMs(delay);
+            
+    
+    (*pCmdIO->pCmdApi->msg)(cmdIoParam, RESP_OK);
     return 1;
 }
 
@@ -162,14 +222,14 @@ static int _Command_Monitor_Read(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** a
         (*pCmdIO->pCmdApi->msg)(CmdIoParam, RESP_ERROR "Corona box busy." LINE_TERM);
         return 0;
     }
-    if (argc > 1)
+    /*if (argc > 1)
     {
         BYTE control = atoi(argv[1]);
         if (control != 0)
             ADC_DATA.controlbyte = control;
         else
             ADC_Reset();
-    }
+    }*/
     CORONA_STATUS = CORONA_MONITOR_READ;
     return 1;
 }
@@ -233,7 +293,10 @@ static int _Command_SetDose(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
     macro_dose = atof(argv[1]);
     micro_dose = macro_dose;
     //if (CORONA_STATUS == CORONA_MACRO_READY)
-    DAC_SetCoronaDose(fabs(macro_dose));
+    if (macro_dose != 0)
+        DAC_SetCoronaDose(fabs(macro_dose));
+    else
+        DAC_SetCoronaDoseZero();
     (*pCoronaCmdDevice->pCmdApi->print)(CmdIoParam, RESP_OK);
     return 1;
 }
@@ -277,6 +340,7 @@ static int _Command_Init_Macro(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** arg
         (*pCmdIO->pCmdApi->msg)(CmdIoParam, RESP_ERROR "Not enough arguments." LINE_TERM);
         return 0;
     }
+    //corona_pin_select = atoi(argv[1]) == 0 ? MACRO_LOW_DOSE_COR_ENABLED_PIN : MACRO_HIGH_DOSE_COR_ENABLED_PIN;
     corona_pin_select = atoi(argv[1]) == 0 ? MACRO_LOW_DOSE_COR_ENABLED_PIN : MACRO_HIGH_DOSE_COR_ENABLED_PIN;
     macro_dose = atof(argv[2]);
     corona_bias = atof(argv[3]);
@@ -344,9 +408,13 @@ static int _Command_Init_Micro(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** arg
         (*pCmdIO->pCmdApi->msg)(CmdIoParam, RESP_ERROR "Not enough arguments." LINE_TERM);
         return 0;
     }
+    
     corona_pin_select = atoi(argv[1]) == 0 ? MICRO_LOW_DOSE_COR_ENABLED_PIN : MICRO_HIGH_DOSE_COR_ENABLED_PIN;
     micro_dose = atof(argv[2]);
     corona_bias = atof(argv[3]);
+    corona_delay = 1000;
+    if (argc > 4)
+        corona_delay = atoi(argv[4]);
     CORONA_STATUS = CORONA_MICRO_INIT;
     return 1;
 }
@@ -360,6 +428,9 @@ static int _Command_Done_Micro(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** arg
         (*pCmdIO->pCmdApi->msg)(CmdIoParam, RESP_ERROR "Not allowed to finalize micro." LINE_TERM);
         return 0;
     }
+    micro_bias_delay = 0;
+    if (argc > 1)
+        micro_bias_delay = atoi(argv[1]);
     CORONA_STATUS = CORONA_MICRO_DONE;
     return 1;
 }
@@ -506,7 +577,7 @@ static int _Command_Shutter_Close(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** 
 static int _Command_Ver(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
 {
     const void* cmdIoParam = pCmdIO->cmdIoParam;
-    (*pCmdIO->pCmdApi->msg)(cmdIoParam, RESP_OK "Version 1.0" LINE_TERM);
+    (*pCmdIO->pCmdApi->msg)(cmdIoParam, RESP_OK "Version " VERSION_NUMBER  LINE_TERM);
     return 1;
 }
 
@@ -581,7 +652,7 @@ void Corona_Tasks(void)
                 for(i=0; i<8; i++)
                 {
                     if ((ADC_DATA.controlbyte & (1 << i)) > 0)
-                        (*pCoronaCmdDevice->pCmdApi->print)(CmdIoParam, "%f ", 10.0 * ADC_DATA.channels[i] / 0x03FFFF);
+                        (*pCoronaCmdDevice->pCmdApi->print)(CmdIoParam, "%f, ", 10.0 * ADC_DATA.channels[i] / 0x03FFFF);
                 }
                 (*pCoronaCmdDevice->pCmdApi->print)(CmdIoParam, LINE_TERM);
                 ADC_STAT = ADC_IDLE;
@@ -629,16 +700,15 @@ void Corona_Tasks(void)
             GPIO_PinWrite(HV_POLARITY_NEG_POS_PIN, macro_dose < 0);
             GPIO_PinWrite(CORONA_BIAS_POLARITY_NEG_POS_PIN, macro_dose < 0);
             DAC_SetBiasValue(fabs(corona_bias));
-            //DAC_SetCoronaDoseZero();
             DAC_SetCoronaDose(fabs(macro_dose));
-            //HIGH_VOLTAGE_ENABLED_Set();
             (*pCoronaCmdDevice->pCmdApi->print)(CmdIoParam, RESP_OK);
             CORONA_MODE = CORONA_MODE_MACRO;
             CORONA_STATUS = CORONA_MACRO_READY;
             break;
         case CORONA_MACRO_DONE:
             HIGH_VOLTAGE_ENABLED_Clear();
-            DAC_SetCoronaDoseZero();
+            //DAC_SetCoronaDoseZero();
+            DAC_SetCoronaDose(0);
             DAC_SetBiasValue(0);
             GPIO_PinClear(corona_pin_select);
             (*pCoronaCmdDevice->pCmdApi->print)(CmdIoParam, RESP_OK);
@@ -655,28 +725,43 @@ void Corona_Tasks(void)
             break;
         case CORONA_MICRO_INIT:
             HIGH_VOLTAGE_ENABLED_Clear();
+            BIAS_VOLTAGE_ENABLED_Clear();
+          
+            CORETIMER_DelayUs(corona_delay);
             BIAS_MICRO_MODE_SELECT_Set();
+            CORETIMER_DelayUs(corona_delay);
             GPIO_PinSet(corona_pin_select);
+            CORETIMER_DelayUs(corona_delay);
             GPIO_PinWrite(HV_POLARITY_NEG_POS_PIN, micro_dose < 0);
+            CORETIMER_DelayUs(corona_delay);
             GPIO_PinWrite(CORONA_BIAS_POLARITY_NEG_POS_PIN, micro_dose > 0);
+            
+            CORETIMER_DelayUs(corona_delay);
             DAC_SetBiasValue(fabs(corona_bias));
             DAC_SetCoronaDose(fabs(micro_dose));
+            
+            CORETIMER_DelayUs(corona_delay);
             BIAS_VOLTAGE_ENABLED_Set();
             HIGH_VOLTAGE_ENABLED_Set();
+            
             (*pCoronaCmdDevice->pCmdApi->print)(CmdIoParam, RESP_OK);
             CORONA_MODE = CORONA_MODE_MICRO;
             CORONA_STATUS = CORONA_MICRO_READY;
             break;
         case CORONA_MICRO_DONE:
-            HIGH_VOLTAGE_ENABLED_Clear();
-            DAC_SetCoronaDoseZero();
-            DAC_SetBiasValue(0);
-            BIAS_VOLTAGE_ENABLED_Clear();
-            GPIO_PinClear(corona_pin_select);
-            BIAS_MICRO_MODE_SELECT_Clear();
-            (*pCoronaCmdDevice->pCmdApi->print)(CmdIoParam, RESP_OK);
-            CORONA_STATUS = CORONA_IDLE;
-            CORONA_MODE = CORONA_MODE_NONE;
+            if (MICRO_DONE_STATUS == MICRO_DONE_IDLE)
+            {
+                (*pCoronaCmdDevice->pCmdApi->print)(CmdIoParam, COMMENT " micro done started." LINE_TERM);
+                MICRO_DONE_STATUS = MICRO_DONE_START;
+            }
+            MicroDoneTask();
+            if (MICRO_DONE_STATUS == MICRO_DONE_COMPLETE)
+            {
+                (*pCoronaCmdDevice->pCmdApi->print)(CmdIoParam, RESP_OK);
+                CORONA_STATUS = CORONA_IDLE;
+                CORONA_MODE = CORONA_MODE_NONE;
+                MICRO_DONE_STATUS = MICRO_DONE_IDLE;
+            }
             break;
         case CORONA_MICRO_START_CHARGING:
             CORONA_STATUS = CORONA_CHARGING;
@@ -688,6 +773,53 @@ void Corona_Tasks(void)
         case CORONA_MICRO_READY:
         case CORONA_MACRO_READY:
         case CORONA_CHARGING:
+            break;
+    }
+}
+
+static void MicroDoneTask(void)
+{
+    switch (MICRO_DONE_STATUS)
+    {
+        case MICRO_DONE_START:
+        case MICRO_DONE_HV_OFF:
+            (*pCoronaCmdDevice->pCmdApi->print)(CmdIoParam, COMMENT " Turning HV off." LINE_TERM);
+            DAC_SetCoronaDoseZero();
+            CORETIMER_DelayMs(100);
+            HIGH_VOLTAGE_ENABLED_Clear();
+
+            micro_done_delay_start = _CP0_GET_COUNT();
+            micro_done_delay_end = (CORE_TIMER_FREQUENCY/1000)*micro_bias_delay;
+            MICRO_DONE_STATUS = MICRO_DONE_HV_WAIT;
+            (*pCoronaCmdDevice->pCmdApi->print)(CmdIoParam, COMMENT " start_delay = %x." LINE_TERM, micro_done_delay_start);
+            (*pCoronaCmdDevice->pCmdApi->print)(CmdIoParam, COMMENT " end_delay = %x." LINE_TERM, micro_done_delay_end);
+            break;
+        case MICRO_DONE_HV_WAIT:
+            if (_CP0_GET_COUNT() - micro_done_delay_start >= micro_done_delay_end)
+            {
+                (*pCoronaCmdDevice->pCmdApi->print)(CmdIoParam, COMMENT " start_delay = %x." LINE_TERM, _CP0_GET_COUNT() - micro_done_delay_start);
+                MICRO_DONE_STATUS = MICRO_DONE_BIAS_OFF;
+            }
+            break;
+        case MICRO_DONE_BIAS_OFF:
+            (*pCoronaCmdDevice->pCmdApi->print)(CmdIoParam, COMMENT " Turning Bias off." LINE_TERM);
+            BIAS_VOLTAGE_ENABLED_Clear();
+            CORETIMER_DelayMs(100);
+            DAC_SetBiasValue(0);
+            MICRO_DONE_STATUS = MICRO_DONE_BIAS_WAIT;
+            break;
+        case MICRO_DONE_BIAS_WAIT:
+            MICRO_DONE_STATUS = MICRO_DONE_IO_CLEAR;
+            break;
+        case MICRO_DONE_IO_CLEAR:
+            (*pCoronaCmdDevice->pCmdApi->print)(CmdIoParam, COMMENT " Clearing IO." LINE_TERM);
+            GPIO_PinClear(corona_pin_select);
+            CORETIMER_DelayMs(100);
+            BIAS_MICRO_MODE_SELECT_Clear();
+            MICRO_DONE_STATUS = MICRO_DONE_COMPLETE;
+            break;
+        case MICRO_DONE_IDLE:
+        case MICRO_DONE_COMPLETE:
             break;
     }
 }
