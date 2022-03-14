@@ -46,6 +46,7 @@ double corona_ramp_increment;
 double macro_dose;
 double micro_dose;
 double corona_bias;
+bool   positive_macro_dose;
 double micro_bias_delay;
 
 uint32_t micro_done_delay_start;
@@ -104,7 +105,7 @@ static int _Command_Shutter_Close(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** 
 #define         RESP_OK         "+OK."  LINE_TERM
 #define         RESP_ERROR      "-ERR." 
 #define         COMMENT         "CMT."
-#define         VERSION_NUMBER  "1.0.4.0"
+#define         VERSION_NUMBER  "1.0.4.10"
 
 static const SYS_CMD_DESCRIPTOR coronaCmdTable[] = 
 {
@@ -364,13 +365,30 @@ static int _Command_Done_Macro(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** arg
 void OpenMacroShutter(void)
 {
     //DAC_SetCoronaDose(fabs(macro_dose)); 
-    BIAS_VOLTAGE_ENABLED_Set();
-    HIGH_VOLTAGE_ENABLED_Set();
+    if (positive_macro_dose)
+    {
+        //DAC_SetCoronaDose(fabs(macro_dose)); 
+        BIAS_VOLTAGE_ENABLED_Set();
+        HIGH_VOLTAGE_ENABLED_Set();
+    }
+    else
+    {
+        BIAS_VOLTAGE_ENABLED_Set();
+        CORETIMER_DelayMs(20);
+        DAC_SetBiasValue(fabs(corona_bias));
+        CORETIMER_DelayMs(20);
+        HIGH_VOLTAGE_ENABLED_Set();
+    }
 }
 
 void CloseMacroShutter(void)
 {
     HIGH_VOLTAGE_ENABLED_Clear();
+    if (!positive_macro_dose)
+    {
+        DAC_SetBiasValue(0);
+        //CORETIMER_DelayMs(10);
+    }
     BIAS_VOLTAGE_ENABLED_Clear();
     //DAC_SetCoronaDoseZero();
 }
@@ -699,7 +717,11 @@ void Corona_Tasks(void)
             GPIO_PinSet(corona_pin_select);
             GPIO_PinWrite(HV_POLARITY_NEG_POS_PIN, macro_dose < 0);
             GPIO_PinWrite(CORONA_BIAS_POLARITY_NEG_POS_PIN, macro_dose < 0);
-            DAC_SetBiasValue(fabs(corona_bias));
+            positive_macro_dose = macro_dose > 0;
+            if (positive_macro_dose)
+                DAC_SetBiasValue(fabs(corona_bias));
+            else
+                DAC_SetBiasValue(0);
             DAC_SetCoronaDose(fabs(macro_dose));
             (*pCoronaCmdDevice->pCmdApi->print)(CmdIoParam, RESP_OK);
             CORONA_MODE = CORONA_MODE_MACRO;
