@@ -35,7 +35,6 @@
 extern "C" {
 #endif
 
-
 typedef unsigned char BYTE;
 typedef unsigned int DWORD;
 
@@ -60,8 +59,6 @@ typedef struct
     };
 }ADC_DATA_TYPE;
 
-ADC_DATA_TYPE ADC_DATA;
-
 typedef enum 
 {
     ADC_WAIT_INIT,
@@ -71,8 +68,13 @@ typedef enum
     ADC_COMPLETE
 } ADC_STATES;
 
-ADC_STATES ADC_STAT;
+bool ADC_IsIdle();
+bool ADC_IsComplete();
 
+void ADC_SetIdle();
+
+BYTE ADC_ControlByte();
+uint ADC_Channel(int i);
 
 void ADC_Initialize(void);
 
@@ -82,7 +84,7 @@ void ADC_Tasks(void);
 
 void ADC_Scan(void);
 
-    /* Provide C++ Compatibility */
+/* Provide C++ Compatibility */
 #ifdef __cplusplus
 }
 #endif

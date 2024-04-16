@@ -653,18 +653,15 @@ void SYS_Initialize ( void* data )
 
 
     APP_Initialize();
-    
+
     ADC_Initialize();
     
     Corona_Initialize();
-
 
     EVIC_Initialize();
 
 	/* Enable global interrupts */
     __builtin_enable_interrupts();
-
-
 }
 
 

@@ -14,6 +14,7 @@
     Describe the purpose of this file.
  */
 
+#include "math.h"
 #include "dac.h"
 
 DWORD ADDR_0 = 0x00000000;
@@ -125,6 +126,18 @@ void DAC_SetBiasValue(double dose)
 
 void DAC_SetChuckBiasValue(double dose)
 {
+    if (fabs(dose) <= 10)
+    {
+        DWORD cmd = CMD_WRITE_SPAN | ADDR_3 | DAC_SPAN_10_10;
+        SPI1_Write(&cmd, 4);
+        CORETIMER_DelayUs(1);
+        dose = dose / 2.0 + 5.0;
+        DWORD value = DAC_MAX_VALUE * dose /10.0;
+        value &= DAC_MAX_VALUE;
+        cmd = CMD_WRITE_UPDATE | ADDR_3 | value;
+        SPI1_Write(&cmd, 4);
+        CORETIMER_DelayUs(1);
+    }
 }
 
 void DAC_PowerDown()

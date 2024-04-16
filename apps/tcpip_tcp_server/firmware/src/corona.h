@@ -30,9 +30,6 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "configuration.h"
-#include "adc.h"
-#include "dac.h"
-
 
 /* Provide C++ Compatibility */
 #ifdef __cplusplus

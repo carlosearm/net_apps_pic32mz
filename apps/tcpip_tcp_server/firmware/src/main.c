@@ -50,7 +50,7 @@
 #include <stdlib.h>                     // Defines EXIT_FAILURE
 #include "definitions.h"                // SYS function prototypes
 
-
+/*
 unsigned int data = 0x00F00000;
 unsigned int write_max_cmd = 0x0000FFFF;
 unsigned int write_min_cmd = 0x00000000;
@@ -62,6 +62,7 @@ unsigned int write_update_all_zero_cmd = 0x80A00000;
 
 unsigned int read_control = 0x84000000;
 unsigned int read_conv_result = 0x00000000;
+*/
 
 //unsigned int buffer;
 

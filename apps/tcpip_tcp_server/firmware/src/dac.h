@@ -2,16 +2,16 @@
 /** Descriptive File Name
 
   @Company
-    Company Name
+    Semilab SDI
 
   @File Name
-    filename.h
+    DAC.h
 
   @Summary
-    Brief description of the file.
+    Handles communication with DAC LTC2664 using SPI1.
 
   @Description
-    Describe the purpose of this file.
+    DAC LTC2664
  */
 /* ************************************************************************** */
 
@@ -36,6 +36,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+    
+    typedef unsigned int DWORD;
     
     void DAC_Reset(void);
     

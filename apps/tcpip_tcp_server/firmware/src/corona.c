@@ -22,9 +22,12 @@
 
 #include "math.h"
 #include "peripheral/tmr/plib_tmr2.h"
-#include "corona.h"
 #include "system/debug/sys_debug.h"
 #include "system/command/sys_command.h"
+#include "corona.h"
+#include "dac.h"
+#include "adc.h"
+
 
 
 /* ************************************************************************** */
@@ -46,6 +49,7 @@ double corona_ramp_increment;
 double macro_dose;
 double micro_dose;
 double corona_bias;
+double chuck_bias;
 bool   positive_macro_dose;
 double micro_bias_delay;
 
@@ -306,11 +310,6 @@ static int _Command_SetBias(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
 {
     CmdIoParam = pCmdIO->cmdIoParam;
     pCoronaCmdDevice = pCmdIO;
-    /*if (CORONA_STATUS != CORONA_IDLE)
-    {
-        (*pCmdIO->pCmdApi->msg)(CmdIoParam, RESP_ERROR "Not allowed to set bias." LINE_TERM);
-        return 0;
-    }*/
     if (argc < 2)
     {
         (*pCmdIO->pCmdApi->msg)(CmdIoParam, RESP_ERROR "Not enough arguments." LINE_TERM);
@@ -324,6 +323,16 @@ static int _Command_SetBias(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
 
 static int _Command_SetChuckBias(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
 {
+    CmdIoParam = pCmdIO->cmdIoParam;
+    pCoronaCmdDevice = pCmdIO;
+    if (argc < 2)
+    {
+        (*pCmdIO->pCmdApi->msg)(CmdIoParam, RESP_ERROR "Not enough arguments." LINE_TERM);
+        return 0;
+    }
+    chuck_bias = atof(argv[1]);
+    DAC_SetChuckBiasValue(chuck_bias);
+    (*pCoronaCmdDevice->pCmdApi->print)(CmdIoParam, RESP_OK);
     return 1;
 }
 
@@ -658,22 +667,19 @@ void Corona_Tasks(void)
             CoronaTest_Task();
             break;
         case CORONA_MONITOR_READ:
-            if (ADC_STAT == ADC_IDLE)
+            if (ADC_IsIdle())
                 ADC_Scan();
-            if (ADC_STAT == ADC_COMPLETE)
+            if (ADC_IsComplete())
             {
-                /*float v0 = 10.0 * ADC_DATA.channel_0 / 0x03FFFF;
-                float v1 = 10.0 * ADC_DATA.channel_1 / 0x03FFFF;
-                (*pCoronaCmdDevice->pCmdApi->print)(CmdIoParam, RESP_OK "%f, %f" LINE_TERM, v0, v1);*/
                 (*pCoronaCmdDevice->pCmdApi->print)(CmdIoParam, RESP_OK);
                 int i;
                 for(i=0; i<8; i++)
                 {
-                    if ((ADC_DATA.controlbyte & (1 << i)) > 0)
-                        (*pCoronaCmdDevice->pCmdApi->print)(CmdIoParam, "%f, ", 10.0 * ADC_DATA.channels[i] / 0x03FFFF);
+                    if ((ADC_ControlByte() & (1 << i)) > 0)
+                        (*pCoronaCmdDevice->pCmdApi->print)(CmdIoParam, "%f, ", 10.0 * ADC_Channel(i) / 0x03FFFF);
                 }
                 (*pCoronaCmdDevice->pCmdApi->print)(CmdIoParam, LINE_TERM);
-                ADC_STAT = ADC_IDLE;
+                ADC_SetIdle();
                 CORONA_STATUS = corona_status_backup;
             }
             break;
@@ -855,13 +861,13 @@ void CoronaTest_Task(void)
             {
                 TEST_STATE = TEST_STATUS_DONE;
                 (*pCoronaCmdDevice->pCmdApi->print)(CmdIoParam, RESP_ERROR "Not allowed to start self-test." LINE_TERM);
-                ADC_DATA.controlbyte = 1<<7;
+                //ADC_DATA.controlbyte = 1<<7;
             }
             break;
         case TEST_STATUS_ACTIVE:
             break;
         case TEST_STATUS_DONE:
-            ADC_DATA.controlbyte = 3;
+            //ADC_DATA.controlbyte = 3;
             break;
         case TEST_STATUS_IDLE:
             break;
