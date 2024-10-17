@@ -109,7 +109,7 @@ static int _Command_Shutter_Close(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** 
 #define         RESP_OK         "+OK."  LINE_TERM
 #define         RESP_ERROR      "-ERR." 
 #define         COMMENT         "CMT."
-#define         VERSION_NUMBER  "1.0.4.10"
+#define         VERSION_NUMBER  "1.0.5.0"
 
 static const SYS_CMD_DESCRIPTOR coronaCmdTable[] = 
 {
